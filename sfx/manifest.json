@@ -1,0 +1,22 @@
+{
+  "name": "Leo Study App",
+  "short_name": "LeoStudy",
+  "description": "A neon gamer-style study tracker with XP, levels, streaks, missions, achievements and Firebase cloud sync.",
+  "start_url": "/leo-study-app/index.html",
+  "scope": "/leo-study-app/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00eaff",
+  "icons": [
+    {
+      "src": "/leo-study-app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/leo-study-app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
