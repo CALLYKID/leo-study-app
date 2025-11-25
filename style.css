@@ -1,5 +1,5 @@
 /* =====================================================================
-   STUDY ADDICT — CLEAN FINAL NEON UI (A+B+C BUILD)
+   STUDY ADDICT — CLEAN FINAL NEON UI (ICONS VERSION)
 ===================================================================== */
 
 /* ----------------------------------------------------
@@ -21,7 +21,7 @@ body {
   min-height: 100vh;
 }
 
-/* Smooth neon scrollbar */
+/* Neon scrollbar */
 body::-webkit-scrollbar { width: 8px; }
 body::-webkit-scrollbar-track { background: rgba(0,0,0,0.25); border-radius: 10px; }
 body::-webkit-scrollbar-thumb {
@@ -56,7 +56,7 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
   animation: fadeMenu 0.6s ease forwards;
 }
 
@@ -70,28 +70,37 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px;
   width: 100%;
+  gap: 25px;
 }
 
 /* ----------------------------------------------------
-   BUTTONS — NEON GLASS
+   BUTTONS — NEON GLASS w/ ICONS
 ---------------------------------------------------- */
 .btn {
   width: 82%;
   max-width: 380px;
-  padding: 22px 40px;
+  padding: 22px;
   border-radius: 22px;
   background: rgba(255,255,255,0.06);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(0,238,255,0.45);
   color: #baf6ff;
   font-size: 26px;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-align: center;
   cursor: pointer;
   transition: 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   box-shadow: 0 0 18px rgba(0,255,255,0.38);
+}
+
+.btn span {
+  font-size: 28px;
+  display: flex;
 }
 
 .btn:hover {
@@ -104,6 +113,253 @@ body::-webkit-scrollbar-thumb {
 .btn:active { transform: scale(0.93); }
 
 /* Danger button */
+.danger-btn {
+  background: rgba(255,0,60,0.15);
+  border: 2px solid #ff003c;
+  color: #ff003c;
+  box-shadow: 0 0 15px #ff003c;
+  animation: dangerPulse 1.7s infinite;
+}
+
+@keyframes dangerPulse {
+  0% { box-shadow: 0 0 6px #ff003c; }
+  50% { box-shadow: 0 0 25px #ff003c; }
+  100% { box-shadow: 0 0 6px #ff003c; }
+}
+
+/* ----------------------------------------------------
+   SCREENS
+---------------------------------------------------- */
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  padding: 100px 20px 30px;
+  overflow-y: auto;
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  border: 2px solid #00eaff;
+  background: rgba(0,0,0,0.45);
+  border-radius: 10px;
+  color: #00eaff;
+  cursor: pointer;
+  z-index: 999;
+}
+
+/* ----------------------------------------------------
+   XP UI
+---------------------------------------------------- */
+.level { 
+  font-size: 32px; 
+  margin-top: 10px; 
+}
+
+.xp-bar {
+  width: 90%;
+  max-width: 500px;
+  height: 32px;
+  border: 2px solid #00eaff;
+  border-radius: 12px;
+  margin: 25px auto;
+  overflow: hidden;
+}
+
+.xp-fill {
+  height: 100%;
+  width: 0%;
+  background: #00eaff;
+  box-shadow: 0 0 20px #00eaff;
+  transition: width 0.8s ease;
+}
+
+/* ----------------------------------------------------
+   REWARDS
+---------------------------------------------------- */
+.rewardItem {
+  padding: 18px;
+  border-radius: 14px;
+  margin: 14px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,20,0.45);
+  border: 2px solid #9400ff60;
+  backdrop-filter: blur(6px);
+}
+
+.reward-common { border-color:#00eaff70; }
+.reward-rare { border-color:#9400ff90; }
+.reward-epic { border-color:#ff00ff90; }
+.reward-legendary { border-color:#ffd86b; }
+
+.buyBtn {
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: rgba(0,20,40,0.45);
+  color: #00eaff;
+  border: 2px solid #00eaff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.buyBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px #00eaff;
+}
+
+.unlockedTag {
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 2px solid #00ff9d;
+  background: rgba(0,255,150,0.2);
+  color: #00ff9d;
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------
+   MISSIONS
+---------------------------------------------------- */
+.mission-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 18px; 
+}
+
+.mission-card {
+  background: rgba(0,0,20,0.45);
+  border: 2px solid #00eaff66;
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  color: #baf6ff;
+}
+
+.mission-card.complete {
+  border-color: #00ff99;
+  box-shadow: 0 0 15px #00ff9966;
+}
+
+.mission-info h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #00eaff;
+}
+
+.mission-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.mission-fill {
+  height: 100%;
+  background: linear-gradient(90deg,#00eaff,#9400ff);
+  transition: width 0.4s ease;
+}
+
+.claim-btn {
+  margin-top: 12px;
+  width: 90px;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px solid #00eaff;
+  background: rgba(0,255,255,0.1);
+  color: #00eaff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.claim-btn.locked {
+  border-color: #555;
+  background: rgba(255,255,255,0.08);
+  color: #555;
+  cursor: not-allowed;
+}
+
+.claim-btn.claimed {
+  border-color: lime;
+  background: rgba(0,255,0,0.15);
+  color: lime;
+  cursor: default;
+}
+
+.mission-xp-pop {
+  position: absolute;
+  right: 10px;
+  top: -5px;
+  font-size: 20px;
+  color: #00eaff;
+  font-weight: 800;
+  animation: popUpXP 0.8s ease forwards;
+}
+
+@keyframes popUpXP {
+  0% { opacity: 1; transform: translateY(10px) scale(1); }
+  100% { opacity: 0; transform: translateY(-25px) scale(1.25); }
+}
+
+/* ----------------------------------------------------
+   LOGIN
+---------------------------------------------------- */
+.login-title {
+  text-align: center;
+  font-size: 36px;
+  margin-top: 30px;
+}
+
+.login-container {
+  width: 85%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(0,0,0,0.35);
+  border: 2px solid #009dff;
+  border-radius: 10px;
+  color: #dff9ff;
+}
+
+/* ----------------------------------------------------
+   ACHIEVEMENT POPUP
+---------------------------------------------------- */
+.achievementPopup {
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20,0,40,0.9);
+  border: 2px solid #9400ff;
+  color: #00eaff;
+  padding: 18px 28px;
+  border-radius: 14px;
+  transition: 0.35s ease;
+  opacity: 0;
+}
+
+.achievementPopup.show {
+  top: 40px;
+  opacity: 1;
+}/* Danger button */
 .danger-btn {
   background: rgba(255,0,60,0.18);
   border: 2px solid #ff003c;
@@ -267,31 +523,6 @@ body::-webkit-scrollbar-thumb {
   transition:width 0.4s ease;
 }
 
-.claim-btn {
-  margin-top:10px;
-  width:90px;
-  height:40px;
-  border-radius:8px;
-  border:2px solid #00eaff;
-  background:rgba(0,255,255,0.1);
-  color:#00eaff;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.claim-btn.locked {
-  border-color:#444;
-  background:rgba(255,255,255,0.05);
-  color:#555;
-  cursor:not-allowed;
-}
-
-.claim-btn.claimed {
-  background:rgba(0,255,0,0.15);
-  border-color:lime;
-  color:lime;
-  cursor:default;
-}
 
 .mission-xp-pop {
   position:absolute;
