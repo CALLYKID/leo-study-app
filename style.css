@@ -760,3 +760,38 @@ body::-webkit-scrollbar-thumb:hover { background: #00eaff; }
   0% { opacity: 1; transform: translateY(10px); }
   100% { opacity: 0; transform: translateY(-20px); }
 }
+/* Mission Claim Button */
+.claim-btn {
+  width: 90px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid #00eaff;
+  color: #00eaff;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Locked mission = greyed out */
+.claim-btn.locked {
+  border: 2px solid #444;
+  color: #555;
+  background: rgba(255,255,255,0.05);
+  cursor: not-allowed;
+}
+
+/* Completed mission = claim button */
+.claim-btn:not(.locked):not(.claimed):hover {
+  background: rgba(0, 255, 255, 0.25);
+}
+
+/* Claimed */
+.claim-btn.claimed {
+  background: rgba(0,255,0,0.15);
+  border-color: lime;
+  color: lime;
+  cursor: default;
+}
