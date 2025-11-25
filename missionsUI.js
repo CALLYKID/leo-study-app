@@ -3,23 +3,24 @@
    Neon progress bars • Animated claim • Auto tracking • XP particles
 ===================================================================== */
 
+
 /* -----------------------------------------
    MISSION BLUEPRINTS
 ------------------------------------------ */
 
 // DAILY MISSIONS
 const dailyMissions = [
-  { id: "d1", title: "Study 20 minutes", need: 20, type: "minutes", xp: 80, done: false },
-  { id: "d2", title: "Study 1 hour", need: 60, type: "minutes", xp: 200, done: false },
-  { id: "d3", title: "Earn 150 XP", need: 150, type: "xp", xp: 150, done: false }
+  { id: "d1", title: "Study 20 minutes", need: 20, type: "minutes", xp: 80, done: false, claimed: false },
+  { id: "d2", title: "Study 1 hour", need: 60, type: "minutes", xp: 200, done: false, claimed: false },
+  { id: "d3", title: "Earn 150 XP", need: 150, type: "xp", xp: 150, done: false, claimed: false }
 ];
 
 // WEEKLY MISSIONS
 const weeklyMissions = [
-  { id: "w1", title: "Study 3 hours", need: 180, type: "minutes", xp: 350, done: false },
-  { id: "w2", title: "Earn 1000 XP", need: 1000, type: "xp", xp: 500, done: false },
-  { id: "w3", title: "7-day streak", need: 7, type: "streak", xp: 800, done: false },
-  { id: "w4", title: "Study 6 hours", need: 360, type: "minutes", xp: 1200, done: false }
+  { id: "w1", title: "Study 3 hours", need: 180, type: "minutes", xp: 350, done: false, claimed: false },
+  { id: "w2", title: "Earn 1000 XP", need: 1000, type: "xp", xp: 500, done: false, claimed: false },
+  { id: "w3", title: "7-day streak", need: 7, type: "streak", xp: 800, done: false, claimed: false },
+  { id: "w4", title: "Study 6 hours", need: 360, type: "minutes", xp: 1200, done: false, claimed: false }
 ];
 
 
@@ -30,7 +31,7 @@ function updateMissionProgress() {
 
   // DAILY
   dailyMissions.forEach(m => {
-    if (!m.done) {
+    if (m.done === false) {
       if (m.type === "minutes" && minutes >= m.need) m.done = true;
       if (m.type === "xp" && totalXP >= m.need) m.done = true;
     }
@@ -38,7 +39,7 @@ function updateMissionProgress() {
 
   // WEEKLY
   weeklyMissions.forEach(m => {
-    if (!m.done) {
+    if (m.done === false) {
       if (m.type === "minutes" && minutes >= m.need) m.done = true;
       if (m.type === "xp" && totalXP >= m.need) m.done = true;
       if (m.type === "streak" && streak >= m.need) m.done = true;
@@ -50,7 +51,7 @@ function updateMissionProgress() {
 
 
 /* -----------------------------------------
-   RENDER MISSIONS UI IN SCREEN
+   RENDER MISSIONS UI
 ------------------------------------------ */
 function renderMissionsUI() {
   const screen = document.getElementById("missionsScreen");
@@ -61,9 +62,7 @@ function renderMissionsUI() {
     <div class="mission-list">
   `;
 
-  dailyMissions.forEach(m => {
-    html += missionCard(m);
-  });
+  dailyMissions.forEach(m => html += missionCard(m));
 
   html += `
     </div>
@@ -71,9 +70,7 @@ function renderMissionsUI() {
     <div class="mission-list">
   `;
 
-  weeklyMissions.forEach(m => {
-    html += missionCard(m);
-  });
+  weeklyMissions.forEach(m => html += missionCard(m));
 
   html += `</div>`;
 
@@ -92,17 +89,19 @@ function missionCard(m) {
       <div class="mission-info">
         <h2>${m.title}</h2>
         <p>${p.value}/${m.need} ${m.type === 'minutes' ? 'min' : m.type === 'xp' ? 'XP' : 'days'}</p>
-        
+
         <div class="mission-bar">
-          <div class="mission-fill" style="width:${p.percent}%;"></div>
+          <div class="mission-fill" style="width:${p.percent}%"></div>
         </div>
       </div>
 
-      ${m.done ? `
-        <button class="claim-btn" onclick="claimMission('${m.id}')">CLAIM</button>
-      ` : `
-        <button class="claim-btn locked">...</button>
-      `}
+      ${
+        m.claimed
+        ? `<button class="claim-btn claimed">CLAIMED</button>`
+        : m.done
+        ? `<button class="claim-btn" onclick="claimMission('${m.id}')">CLAIM</button>`
+        : `<button class="claim-btn locked">...</button>`
+      }
     </div>
   `;
 }
@@ -131,15 +130,16 @@ function claimMission(id) {
   let m = dailyMissions.find(x => x.id === id) ||
           weeklyMissions.find(x => x.id === id);
 
-  if (!m || !m.done) return popup("Mission not completed!");
+  if (!m) return;
+  if (!m.done) return popup("Mission not completed!");
+  if (m.claimed) return popup("You already claimed this mission!");
 
   playSFX("sfxMission");
   addXP(m.xp);
 
-  // animate
-  spawnMissionXP(id, `+${m.xp} XP`);
+  m.claimed = true;
 
-  m.done = "claimed";
+  spawnMissionXP(id, `+${m.xp} XP`);
 
   renderMissionsUI();
 }
@@ -163,11 +163,16 @@ function spawnMissionXP(id, text) {
 
 
 /* -----------------------------------------
-   INIT WHEN PAGE LOADS
+   INIT
 ------------------------------------------ */
 document.addEventListener("DOMContentLoaded", () => {
   renderMissionsUI();
-});------------------------------------------------------------ */
-function displayMissions(){
-    // Not used anymore — kept for compatibility
+});
+
+
+/* -----------------------------------------
+   LEGACY SUPPORT
+------------------------------------------ */
+function displayMissions() {
+  // Not used anymore — kept for compatibility
 }
