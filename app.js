@@ -381,10 +381,12 @@ function updateXPBar(){
 
 
 /* ------------------------------------------------------------
-   MISSIONS — handled in missionsUI.js
+   MISSIONS — Connect app.js to missionsUI.js
 ------------------------------------------------------------ */
-function updateMissionProgress(){}
-
+function updateMissionProgress(){
+  if (typeof renderMissionsUI === "function") renderMissionsUI();
+  if (typeof checkBadges === "function") checkBadges();
+}
 
 
 /* ------------------------------------------------------------
