@@ -2,7 +2,7 @@
    FIREBASE INIT
 ------------------------------------------------------------ */
 const firebaseConfig = {
-  apiKey: "AIzaSyASqdUFatVKVilncTZlwVtCvuI1KeRQXn8",
+  apiKey: "AIzaSyCrclPpgN8jAZ6KjMa2dD2ia97HhN9yq2o",
   authDomain: "leo-study-app.firebaseapp.com",
   projectId: "leo-study-app",
   storageBucket: "leo-study-app.firebasestorage.app",
