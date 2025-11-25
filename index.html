@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LEO STUDY APP</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<!-- TRIGGER AMBIENCE ON ANY TOUCH OR CLICK -->
+<body onclick="unlockAmbience()" ontouchstart="unlockAmbience()">
+
+<!-- GLOBAL FX -->
+<div id="prestigeBurst"></div>
+<div id="glassBreak"></div>
+
+<!-- LOGGED USER BAR (ALWAYS ON TOP) -->
+<div id="loggedUserBar"></div>
+
+<!-- TITLE BAR BELOW LOGGED USER BAR -->
+<div class="titleBar">
+  <span id="usernameTitle">LEO STUDY APP</span>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MAIN MENU -->
+<div class="menu" id="menu">
+
+  <!-- LOGGED OUT MENU -->
+  <div id="menuLoggedOut">
+    <div class="btn" onclick="openScreen('loginScreen')">LOGIN</div>
+    <div class="btn" onclick="openScreen('registerScreen')">REGISTER</div>
+  </div>
+
+  <!-- LOGGED IN MENU -->
+  <div id="menuLoggedIn">
+    <div class="btn danger-btn" onclick="confirmHardReset()">RESET XP</div>
+    <div class="btn" onclick="openScreen('xpScreen')">XP & LEVEL</div>
+    <div class="btn" onclick="openScreen('streakScreen')">STREAK</div>
+    <div class="btn" onclick="openScreen('achScreen')">ACHIEVEMENTS</div>
+    <div class="btn" onclick="openScreen('rewardsScreen')">REWARDS</div>
+    <div class="btn" onclick="openScreen('missionsScreen')">MISSIONS</div>
+    <div class="btn" onclick="loadCloud()">SYNC CLOUD</div>
+    <div class="btn" onclick="logout()">LOGOUT</div>
+
+    <div id="syncStatus">SYNC: OK</div>
+  </div>
+
+</div>
+
+<!-- XP SCREEN -->
+<div class="screen" id="xpScreen">
+  <div class="back" onclick="closeScreen('xpScreen')">BACK</div>
+
+  <h2 class="level">Level <span id="levelNum">1</span></h2>
+  <h3 class="level" id="prestigeInfo">Prestige 0 • x1.00 XP</h3>
+  <h3 class="level" id="totalXPText">Total XP: 0</h3>
+
+  <div class="xp-bar">
+    <div class="xp-fill" id="xpFill"></div>
+  </div>
+
+  <h3 class="level" id="xpText">0 XP</h3>
+
+  <div class="xp-buttons">
+    <div class="xp-btn" onclick="addMinutes(5)">+5 min</div>
+    <div class="xp-btn" onclick="addMinutes(10)">+10 min</div>
+    <div class="xp-btn" onclick="addMinutes(30)">+30 min</div>
+    <div class="xp-btn" onclick="addMinutes(60)">+1 hour</div>
+    <div class="xp-btn prestige-btn" onclick="tryPrestige()">PRESTIGE</div>
+  </div>
+</div>
+
+<!-- STREAK SCREEN -->
+<div class="screen" id="streakScreen">
+  <div class="back" onclick="closeScreen('streakScreen')">BACK</div>
+  <h1>STREAK</h1>
+  <h2 id="streakCount">0 days</h2>
+</div>
+
+<!-- ACHIEVEMENTS -->
+<div class="screen" id="achScreen">
+  <div class="back" onclick="closeScreen('achScreen')">BACK</div>
+  <h1 class="screen-title">BADGES</h1>
+  <div id="badgeGrid" class="badge-grid"></div>
+</div>
+
+<!-- REWARDS -->
+<div class="screen" id="rewardsScreen">
+  <div class="back" onclick="closeScreen('rewardsScreen')">BACK</div>
+  <h1>REWARDS</h1>
+  <h3 class="screen-subtitle">Your XP: <span id="xpDisplay">0</span></h3>
+  <div id="shop"></div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div class="screen" id="loginScreen">
+  <div class="back" onclick="closeScreen('loginScreen')">BACK</div>
+
+  <h1 class="login-title">Login</h1>
+
+  <div class="login-container">
+    <input id="loginEmail" class="login-input" type="email" placeholder="Email" />
+    <input id="loginPassword" class="login-input" type="password" placeholder="Password" />
+
+    <div class="btn login-btn" onclick="loginUser()">LOGIN</div>
+    <div class="btn secondary-btn" onclick="openScreen('registerScreen')">Go to Register</div>
+  </div>
+</div>
+
+<!-- REGISTER SCREEN -->
+<div class="screen" id="registerScreen">
+  <div class="back" onclick="closeScreen('registerScreen')">BACK</div>
+
+  <h1 class="login-title">Register</h1>
+
+  <div class="login-container">
+    <input id="regEmail" class="login-input" type="email" placeholder="Email" />
+    <input id="regPassword" class="login-input" type="password" placeholder="Password" />
+
+    <div class="btn login-btn" onclick="registerUser()">REGISTER</div>
+    <div class="btn secondary-btn" onclick="openScreen('loginScreen')">Back to Login</div>
+  </div>
+</div>
+
+<!-- MISSIONS -->
+<div class="screen" id="missionsScreen">
+  <div class="back" onclick="closeScreen('missionsScreen')">BACK</div>
+
+  <h1 class="section-title">DAILY MISSIONS</h1>
+
+  <!-- missions ... unchanged -->
+
+</div>
+
+<!-- POPUPS -->
+<div id="popup" class="popup"></div>
+<div id="achievementPopup" class="achievementPopup"></div>
+
+<!-- AUDIO (PATCHED + MOBILE SAFE) -->
+<audio id="bgAmbience" loop preload="auto">
+  <source src="sfx/ambience.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfxClick" preload="auto">
+  <source src="sfx/click.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfxXP" preload="auto">
+  <source src="sfx/xp.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfxLevel" preload="auto">
+  <source src="sfx/levelup.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfxPrestige" preload="auto">
+  <source src="sfx/prestige.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfxMission" preload="auto">
+  <source src="sfx/mission.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="sfxAchievement" preload="auto">
+  <source src="sfx/achievement.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<!-- Your Scripts -->
+<script src="app.js?v=9999"></script>
+<script src="missionsUI.js?v=9999"></script>
+
+</body>
+</html>

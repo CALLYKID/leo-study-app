@@ -1,0 +1,683 @@
+/* ----------------------------------------------------
+   GLOBAL
+---------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #02000a;
+  color: #dff8ff;
+  font-family: 'Segoe UI', sans-serif;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+/* Smooth neon scrollbar */
+body::-webkit-scrollbar { width: 8px; }
+body::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00eaff, #9400ff);
+  border-radius: 10px;
+}
+body::-webkit-scrollbar-thumb:hover { background: #00eaff; }
+/* ----------------------------------------------------
+   TITLE BAR
+---------------------------------------------------- */
+.titleBar {
+  width: 100%;
+  text-align: center;
+  padding-top: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#usernameTitle {
+  display: inline-block;
+  max-width: 95%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ----------------------------------------------------
+   MAIN MENU (ALWAYS PERFECTLY CENTERED)
+---------------------------------------------------- */
+.menu {
+    width: 100%;
+    margin-top: 95px; 
+    padding-bottom: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 32px;
+    animation: fadeMenu 0.6s ease forwards;
+}
+
+@keyframes fadeMenu {
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------------------------------------
+   FIXED: CENTER LOGGED-IN / LOGGED-OUT MENUS
+---------------------------------------------------- */
+#menuLoggedIn,
+#menuLoggedOut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;     
+  justify-content: flex-start;
+  width: 100%;
+  gap: 25px;
+}
+
+/* ----------------------------------------------------
+   BUTTONS — FUTURISTIC GLASS
+---------------------------------------------------- */
+.btn {
+  width: 82%;
+  max-width: 380px;
+  padding: 22px 40px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(0,238,255,0.45);
+  color: #baf6ff;
+  font-size: 26px;
+  letter-spacing: 3px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow:
+    0 0 18px rgba(0,255,255,0.38),
+    inset 0 0 10px rgba(255,255,255,0.05);
+}
+
+.btn:hover {
+  transform: translateY(-6px);
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(0,255,255,0.75);
+  box-shadow:
+    0 0 35px rgba(0,255,255,0.8),
+    0 0 60px rgba(140,0,255,0.5),
+    inset 0 0 15px rgba(255,255,255,0.15);
+}
+
+.btn:active {
+  transform: scale(0.95);
+  background: rgba(255,255,255,0.18);
+}
+
+/* Danger button */
+.danger-btn {
+  background: rgba(255,0,60,0.15);
+  border: 2px solid #ff003c;
+  color: #ff003c;
+  box-shadow: 0 0 12px #ff003c;
+  animation: dangerPulse 1.6s infinite;
+}
+
+@keyframes dangerPulse {
+  0% { box-shadow: 0 0 6px #ff003c; }
+  50% { box-shadow: 0 0 22px #ff003c; }
+  100% { box-shadow: 0 0 6px #ff003c; }
+}
+
+.danger-btn:active { animation: dangerShake 0.4s; }
+
+@keyframes dangerShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* ----------------------------------------------------
+   SCREENS — PERFECT CENTER
+---------------------------------------------------- */
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  padding: 100px 20px 30px;
+  text-align: center;
+  overflow-y: auto;
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* BACK BUTTON */
+.back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  border: 2px solid #00eaff;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.5);
+  color: #00eaff;
+  cursor: pointer;
+  transition: 0.2s;
+  z-index: 999;
+}
+
+.back:hover {
+  background: rgba(0,255,255,0.1);
+  transform: scale(1.05);
+}
+
+/* ----------------------------------------------------
+   XP UI
+---------------------------------------------------- */
+.level {
+  text-align: center;
+  font-size: 32px;
+  margin-top: 10px;
+}
+
+.xp-bar {
+  width: 90%;
+  max-width: 500px;
+  height: 32px;
+  border: 2px solid #00eaff;
+  margin: 25px auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+/* ----------------------------------------------------
+   XP HEADER (clean neon block)
+---------------------------------------------------- */
+.xp-header {
+  width: 90%;
+  max-width: 450px;
+  margin: 20px auto 30px;
+  padding: 25px 20px;
+
+  background: rgba(0, 10, 25, 0.55);
+  border: 2px solid #00eaff;
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+
+  text-align: center;
+  box-shadow: 0 0 25px #00eaff80;
+}
+
+.xp-title {
+  font-size: 26px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  color: #baf6ff;
+}
+
+.xp-email {
+  font-size: 16px;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.xp-level {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.xp-prestige {
+  font-size: 20px;
+  color: #00eaff;
+  margin-bottom: 6px;
+}
+
+.xp-total {
+  font-size: 20px;
+  opacity: 0.8;
+}
+.xp-fill {
+  height: 100%;
+  width: 0%;
+  background: #00eaff;
+  box-shadow: 0 0 20px #00eaff;
+  transition: width 1s ease;
+}
+
+.xp-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.xp-btn {
+  padding: 12px 25px;
+  border: 2px solid #00eaff;
+  border-radius: 8px;
+  background: rgba(0,255,255,0.1);
+  color: #00eaff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.xp-btn:active { transform: scale(0.92); }
+
+/* ----------------------------------------------------
+   STREAK
+---------------------------------------------------- */
+#streakScreen h1 { font-size: 40px; }
+#streakCount { font-size: 28px; margin-top: 20px; }
+
+/* ----------------------------------------------------
+   REWARDS
+---------------------------------------------------- */
+.rewardItem {
+  padding: 18px;
+  border-radius: 10px;
+  border: 2px solid #9400ff;
+  background: rgba(0,0,30,0.5);
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+}
+
+.rewardItem.unlocked {
+  border-color: #00ff9d;
+  color: #00ff9d;
+  box-shadow: 0 0 15px #00ff9d;
+}
+
+/* ----------------------------------------------------
+   POPUPS
+---------------------------------------------------- */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  padding: 20px 30px;
+  background: rgba(0,0,0,0.7);
+  border: 2px solid #9400ff;
+  color: #00eaff;
+  border-radius: 12px;
+  font-size: 20px;
+  display: none;
+  z-index: 999;
+}
+
+#syncStatus {
+  position: absolute;
+  bottom: 20px;
+  opacity: 0.7;
+}
+
+/* ----------------------------------------------------
+   BADGE GRID
+---------------------------------------------------- */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  padding-bottom: 40px;
+}
+
+.badge-tile {
+  background: rgba(0,0,30,0.5);
+  border: 2px solid rgba(0,234,255,0.25);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.badge-tile.locked {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.badge-tile.unlocked {
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 0 12px rgba(0,234,255,0.5);
+  border-color: rgba(0,234,255,0.8);
+}
+
+.badge-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  font-size: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.35);
+  box-shadow: inset 0 0 12px rgba(0,234,255,0.25);
+}
+
+/* ----------------------------------------------------
+   MISSIONS
+---------------------------------------------------- */
+.mission-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #00eaff;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 18px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.mission-card.completed {
+  border-color: #00ff7b;
+  box-shadow: 0 0 12px #00ff7b;
+}
+
+.mission-title { font-size: 20px; color: #00eaff; }
+.mission-xp { font-size: 17px; color: #00b7ff; }
+
+.claim-btn {
+  background: #00eaff;
+  color: #000;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.claim-btn.disabled {
+  background: #555;
+  color: #222;
+}
+
+.mission-complete-icon {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 26px;
+  color: #00ff7b;
+  opacity: 0;
+}
+
+.mission-card.completed .mission-complete-icon {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------
+   ACHIEVEMENT POPUP
+---------------------------------------------------- */
+.achievementPopup {
+  position: fixed;
+  left: 50%;
+  top: -200px;
+  transform: translateX(-50%);
+  padding: 18px 28px;
+  background: rgba(20,0,40,0.9);
+  color: #00eaff;
+  border: 2px solid #9400ff;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 18px;
+  width: 260px;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 15px #9400ff;
+  transition: 0.35s ease;
+}
+
+.achievementPopup.show {
+  top: 40px;
+  opacity: 1;
+}
+
+/* ----------------------------------------------------
+   SUPER SPECIAL RAINBOW TITLE FX
+---------------------------------------------------- */
+.supernovaName {
+  font-weight: 900;
+  letter-spacing: 2px;
+  background: linear-gradient(120deg,#ff00ff,#00eaff,#ffd86b,#6bff95,#ff6bd5,#ff00ff);
+  background-size: 600%;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: cosmicShift 5s infinite, pulseAura 2.5s infinite;
+}
+
+@keyframes cosmicShift {
+  0% { background-position: 0%; }
+  50% { background-position: 100%; }
+  100% { background-position: 0%; }
+}
+
+@keyframes pulseAura {
+  0% { text-shadow: 0 0 12px #f0f; }
+  50% { text-shadow: 0 0 45px #0ef; }
+  100% { text-shadow: 0 0 12px #f0f; }
+}
+
+/* ----------------------------------------------------
+   LOGIN UI
+---------------------------------------------------- */
+.login-title {
+  text-align: center;
+  font-size: 36px;
+  margin-top: 30px;
+  margin-bottom: 25px;
+  color: #c8efff;
+  letter-spacing: 2px;
+}
+
+.login-container {
+  width: 85%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 17px;
+  border-radius: 10px;
+  border: 2px solid #009dff;
+  background: rgba(0,0,0,0.35);
+  color: #dff9ff;
+  letter-spacing: 1px;
+  outline: none;
+  box-shadow: 0 0 8px #009dff70;
+}
+
+.login-input::placeholder {
+  color: #88dfff;
+}
+
+.login-btn {
+  background: rgba(255,0,60,0.4);
+  border: 2px solid #ff144f;
+  box-shadow: 0 0 10px #ff005950;
+}
+
+.secondary-btn {
+  background: rgba(0,0,0,0.35);
+  border: 2px solid #00d2ff80;
+  box-shadow: 0 0 10px #00d2ff50;
+}
+/* ----------------------------------------------------
+   LOGGED USER BAR — FIXED + NEON UPGRADE
+---------------------------------------------------- */
+
+/* ----------------------------------------------------
+   REWARD PRICE BUTTON — NEON FIX
+---------------------------------------------------- */
+
+.buyBtn, .useBtn {
+  padding: 10px 18px;
+  font-size: 18px;
+  border-radius: 14px;
+
+  border: 2px solid #00eaff;
+  background: rgba(0, 20, 40, 0.45);
+  color: #00eaff;
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 12px #00eaff70,
+    inset 0 0 8px #00eaff40;
+
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.buyBtn:hover, .useBtn:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 20px #00eaff,
+    0 0 35px #9400ff,
+    inset 0 0 12px #ffffff40;
+}
+
+.buyBtn:active, .useBtn:active {
+  transform: scale(0.92);
+}
+
+/* Make price button always fit neatly on right side */
+.rewardItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+/* ----------------------------------------------------
+   REWARD ITEM (MAIN)
+---------------------------------------------------- */
+.rewardItem {
+  padding: 18px;
+  border-radius: 14px;
+  margin: 14px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,20,0.45);
+  border: 2px solid #9400ff40;
+  backdrop-filter: blur(6px);
+  transition: 0.3s ease;
+}
+
+/* COMMON — Light Blue */
+.reward-common { border-color: #00eaff60; }
+
+/* RARE — Purple */
+.reward-rare { border-color: #9400ff80; }
+
+/* EPIC — Pink/Purple strong */
+.reward-epic { border-color: #ff00ff90; box-shadow: 0 0 10px #ff00ff50; }
+
+/* LEGENDARY — Gold */
+.reward-legendary { 
+  border-color: #ffd86b;
+  box-shadow: 0 0 12px #ffd86b60;
+}
+/* ----------------------------------------------------
+   BUY / USE BUTTONS — NEON PILL STYLE
+---------------------------------------------------- */
+.buyBtn, .useBtn {
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 2px solid #00eaff;
+  background: rgba(0, 20, 40, 0.45);
+  color: #00eaff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 12px #00eaff70,
+    inset 0 0 8px #00eaff40;
+}
+
+.buyBtn:hover, .useBtn:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 20px #00eaff,
+    0 0 35px #9400ff,
+    inset 0 0 12px #ffffff40;
+}
+
+.buyBtn:active, .useBtn:active {
+  transform: scale(0.92);
+}
+
+/* UNLOCKED STATUS */
+.unlockedTag {
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #00ff9d;
+  border: 2px solid #00ff9d;
+  background: rgba(0, 255, 140, 0.15);
+  box-shadow: 0 0 12px #00ff9d60;
+}
+/* XP pop particle */
+.xp-pop {
+  position: absolute;
+  right: 10px;
+  top: -5px;
+  color: #00eaff;
+  font-size: 22px;
+  font-weight: 700;
+  text-shadow: 0 0 10px #00eaff;
+  animation: xpFloat 0.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@keyframes xpFloat {
+  from { opacity: 1; transform: translateY(10px) scale(1); }
+  to   { opacity: 0; transform: translateY(-25px) scale(1.2); }
+}
+/* FIXED LOGGED USER BAR */
+
+#loggedUserBar {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 22px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 2px solid #00eaff;
+    border-radius: 20px;
+    color: #aef6ff;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    z-index: 9999;
+    backdrop-filter: blur(12px);
+
+    /* FIXED */
+    opacity: 0;              /* start hidden */
+    pointer-events: none;    /* never block clicks */
+    transition: opacity 0.25s ease;
+    white-space: nowrap;
+}
