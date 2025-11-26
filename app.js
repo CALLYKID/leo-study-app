@@ -512,7 +512,20 @@ function logout() {
     location.reload();
   });
 }
+function updateLoggedUserBar(user) {
+  const bar = document.getElementById("loggedUserBar");
+  const sync = document.getElementById("syncStatus");
 
+  if (!bar || !sync) return;
+
+  if (user) {
+    bar.innerText = `LOGGED IN: ${user.email}`;
+    sync.innerText = "SYNC: OK";
+  } else {
+    bar.innerText = "";
+    sync.innerText = "GUEST MODE";
+  }
+}
 
 
 /* ------------------------------------------------------------
