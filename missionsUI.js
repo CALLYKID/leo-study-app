@@ -28,38 +28,42 @@ function checkMissionResets() {
 
   // DAILY RESET
   if (missionLocal.lastDaily !== today) {
-  missionLocal.dailyMin = 0;
-  missionLocal.dailyXP = 0;
-  missionLocal.lastDaily = today;
+    missionLocal.dailyMin = 0;
+    missionLocal.dailyXP = 0;
+    missionLocal.lastDaily = today;
 
-  dailyMissions.forEach(m => {
-    m.done = false;
-    m.claimed = false;
-  });
-}
+    dailyMissions.forEach(m => {
+      m.done = false;
+      m.claimed = false;
+    });
+  }
 
-if (missionLocal.lastWeekly !== weekID && now.getDay() === 1) {
-  missionLocal.weeklyMin = 0;
-  missionLocal.weeklyXP = 0;
-  missionLocal.lastWeekly = weekID;
+  // WEEKLY RESET
+  const now = new Date();
+  const weekID = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
 
-  weeklyMissions.forEach(m => {
-    m.done = false;
-    m.claimed = false;
-  });
-}
+  if (missionLocal.lastWeekly !== weekID && now.getDay() === 1) {
+    missionLocal.weeklyMin = 0;
+    missionLocal.weeklyXP = 0;
+    missionLocal.lastWeekly = weekID;
+
+    weeklyMissions.forEach(m => {
+      m.done = false;
+      m.claimed = false;
+    });
+  }
 
   saveMissionLocal();
 }
 
 /* ------------------------------------------------------------
-   OVERRIDE addMinutes + addXP CONNECTION
+   TRIGGER DAILY/WEEKLY RESET ON LOAD
 ------------------------------------------------------------ */
 window.addEventListener("DOMContentLoaded", () => {
   checkMissionResets();
 });
 
-/* CALLED BY app.js AFTER XP GAIN */
+/* CALLED BY app.js AFTER XP & MINUTES INCREASE */
 function missionTrackMinutes(min) {
   missionLocal.dailyMin += min;
   missionLocal.weeklyMin += min;
@@ -89,7 +93,7 @@ const weeklyMissions = [
 ];
 
 /* ------------------------------------------------------------
-   PROGRESS CALCULATOR (FIXED!)
+   PROGRESS CALCULATOR — FIXED
 ------------------------------------------------------------ */
 function getMissionProgress(m) {
   let current = 0;
@@ -106,7 +110,7 @@ function getMissionProgress(m) {
 }
 
 /* ------------------------------------------------------------
-   MAIN UPDATE CALL (CALLED FROM app.js)
+   MAIN UPDATE CALL
 ------------------------------------------------------------ */
 function updateMissionProgress() {
   checkMissionResets();
@@ -122,7 +126,7 @@ function updateMissionProgress() {
 }
 
 /* ------------------------------------------------------------
-   RENDER UI
+   UI RENDER
 ------------------------------------------------------------ */
 function renderMissionsUI() {
   const screen = document.getElementById("missionsScreen");
@@ -154,7 +158,6 @@ function renderMissionsUI() {
 function missionCard(m) {
   const p = getMissionProgress(m);
 
-  // Correct unit label
   let unit = "units";
   if (m.type.includes("Minutes")) unit = "min";
   else if (m.type.includes("XP")) unit = "XP";
@@ -202,7 +205,7 @@ function claimMission(id) {
 }
 
 /* ------------------------------------------------------------
-   XP FLOATING POP-UP
+   XP FLOATING POPUP
 ------------------------------------------------------------ */
 function spawnMissionXP(id, text) {
   const btn = document.querySelector(`[onclick="claimMission('${id}')"]`);
@@ -226,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
   checkMissionResets();
   renderMissionsUI();
 });
+
 /* ------------------------------------------------------------
    HIDDEN DEV RESET — HOLD BACK 3 SECONDS
 ------------------------------------------------------------ */
@@ -246,8 +250,8 @@ document.addEventListener("DOMContentLoaded", () => {
     holdTimer = setTimeout(() => {
       localStorage.removeItem("missionLocal");
       popup("Missions Reset");
-      updateMissionProgress();
-    }, 3000); // 3 seconds
+      location.reload();
+    }, 3000);
   }
 
   function cancelHold() {
