@@ -83,7 +83,14 @@ function showAchievementPopup(name){
   setTimeout(()=>p.classList.remove("show"),2500);
 }
 
-
+/* ------------------------------------------------------------
+   SYNC STATUS (MISSING FIX)
+------------------------------------------------------------ */
+function updateSyncStatus(msg){
+  const el = document.getElementById("syncStatus");
+  if(!el) return;
+  el.innerText = `SYNC: ${msg}`;
+}
 
 /* ------------------------------------------------------------
    GAME VARIABLES
