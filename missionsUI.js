@@ -7,11 +7,11 @@
    STORAGE FOR RESET (local only, not cloud)
 ------------------------------------------------------------ */
 let missionLocal = JSON.parse(localStorage.getItem("missionLocal")) || {
-  dailyMinutes: 0,
+  dailyMin: 0,
   dailyXP: 0,
   lastDaily: null,
 
-  weeklyMinutes: 0,
+  weeklyMin: 0,
   weeklyXP: 0,
   lastWeekly: null
 };
@@ -65,8 +65,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
 /* CALLED BY app.js AFTER XP GAIN */
 function missionTrackMinutes(min) {
-  missionLocal.dailyMinutes += min;
-  missionLocal.weeklyMinutes += min;
+  missionLocal.dailyMin += min;
+  missionLocal.weeklyMin += min;
   saveMissionLocal();
 }
 
