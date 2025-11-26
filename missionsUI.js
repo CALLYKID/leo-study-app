@@ -37,20 +37,21 @@ function checkMissionResets() {
     });
   }
 
-  // WEEKLY RESET — runs once per Monday
-  const now = new Date();
-  const mondayID = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  // WEEKLY RESET — correct system
+const now = new Date();
+const year = now.getFullYear();
+const week = Math.floor((now.getDate() - now.getDay() + 12) / 7); // ISO-like week number
+const weekID = `${year}-W${week}`;
 
-  if (missionLocal.lastWeekly !== mondayID && now.getDay() === 1) {
-    missionLocal.weeklyMin = 0;
-    missionLocal.weeklyXP = 0;
-    missionLocal.lastWeekly = mondayID;
+if (missionLocal.lastWeekly !== weekID) {
+  missionLocal.weeklyMin = 0;
+  missionLocal.weeklyXP = 0;
+  missionLocal.lastWeekly = weekID;
 
-    weeklyMissions.forEach(m => {
-      m.done = false;
-      m.claimed = false;
-    });
-  }
+  weeklyMissions.forEach(m => {
+    m.done = false;
+    m.claimed = false;
+  });
 
   saveMissionLocal();
 }
