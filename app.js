@@ -179,13 +179,28 @@ async function saveCloud(){
   if(!currentUser) return;
 
   await db.collection("users").doc(currentUser.uid).set({
-    xp,totalXP,xpBase,levelXP,level,xpNeeded,
-    minutes,streak,lastStudyDay,
-    prestige,xpMultiplier,
-    badgesUnlocked,
-    rewards,
-    updatedAt:new Date().toISOString()
-  });
+    xp: xp,
+    totalXP: totalXP,
+    xpBase: xpBase,
+    levelXP: levelXP,
+    level: level,
+    xpNeeded: xpNeeded,
+
+    minutes: minutes,
+    streak: streak,
+    lastStudyDay: lastStudyDay,
+
+    prestige: prestige,
+    xpMultiplier: 1 + prestige * 0.25,
+
+    badgesUnlocked: badgesUnlocked || {},
+
+    missionLocal: typeof missionLocal === "object" ? missionLocal : {},
+
+    rewards: Array.isArray(rewards) ? rewards : [],
+
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
 
   updateSyncStatus("OK");
 }
@@ -194,15 +209,31 @@ async function loadCloud(){
   if(!currentUser) return;
 
   const doc = await db.collection("users").doc(currentUser.uid).get();
-  if(!doc.exists) return saveCloud();
 
-  const d = doc.data();
+  if(!doc.exists){
+    await saveCloud();
+    return;
+  }
 
-  xp=d.xp; totalXP=d.totalXP; xpBase=d.xpBase;
-  levelXP=d.levelXP; level=d.level; xpNeeded=d.xpNeeded;
-  minutes=d.minutes; streak=d.streak; lastStudyDay=d.lastStudyDay;
-  prestige=d.prestige; xpMultiplier=d.xpMultiplier;
-  badgesUnlocked=d.badgesUnlocked || {};
+  const d = doc.data() || {};
+
+  xp = d.xp ?? xp;
+  totalXP = d.totalXP ?? totalXP;
+  xpBase = d.xpBase ?? xpBase;
+  levelXP = d.levelXP ?? levelXP;
+  level = d.level ?? level;
+  xpNeeded = d.xpNeeded ?? xpNeeded;
+
+  minutes = d.minutes ?? minutes;
+  streak = d.streak ?? streak;
+  lastStudyDay = d.lastStudyDay ?? lastStudyDay;
+
+  prestige = d.prestige ?? prestige;
+  xpMultiplier = 1 + prestige * 0.25;
+
+  badgesUnlocked = d.badgesUnlocked ?? {};
+
+  missionLocal = d.missionLocal ?? missionLocal;
 
   rewards = Array.isArray(d.rewards) ? d.rewards : rewards;
 
