@@ -118,6 +118,10 @@ body::-webkit-scrollbar-thumb {
   justify-content: center;
   gap: 12px;
   box-shadow: 0 0 18px rgba(0,255,255,0.38);
+
+  /* ★ Anti-Overlay Fix */
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
 }
 
 .btn span { font-size: 26px; }
