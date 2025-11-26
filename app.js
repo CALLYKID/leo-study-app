@@ -401,7 +401,19 @@ function updateXPBar(){
   document.getElementById("xpFill").style.width = Math.min(100,pct) + "%";
 }
 
+function updateLoggedUserBar(user){
+  const bar = document.getElementById("loggedUserBar");
+  if(!bar) return;
 
+  if(guestMode || !user){
+    bar.innerText = "GUEST MODE";
+    bar.style.opacity = "0.5";
+    return;
+  }
+
+  bar.innerText = `LOGGED IN: ${user.email}`;
+  bar.style.opacity = "1";
+}
 
 /* ------------------------------------------------------------
    MENU / SCREENS
