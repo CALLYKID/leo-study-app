@@ -49,10 +49,9 @@
 
     <div class="btn" onclick="loadCloud()"><span>☁️</span>SYNC CLOUD</div>
     <div class="btn" id="guestLoginBtn" onclick="openScreen('loginScreen')">
-  <span>🔒</span> LOGIN TO SAVE
+      <span>🔒</span> LOGIN TO SAVE
     </div>
     <div class="btn" onclick="logout()"><span>🚪</span>LOGOUT</div>
-
   </div>
 </div>
 
@@ -78,6 +77,7 @@
     <div class="xp-btn prestige-btn" onclick="tryPrestige()">PRESTIGE</div>
   </div>
 </div>
+
 <!-- STREAK SCREEN -->
 <div class="screen" id="streakScreen">
   <div class="back" onclick="closeScreen('streakScreen')">BACK</div>
@@ -110,7 +110,6 @@
     <input id="loginEmail" class="login-input" type="email" placeholder="Email" />
     <input id="loginPassword" class="login-input" type="password" placeholder="Password" />
 
-    <!-- FIXED BUTTONS (ONLY CHANGE) -->
     <button class="login-btn" onclick="loginUser()">LOGIN</button>
     <button class="secondary-btn" onclick="openScreen('registerScreen')">Go to Register</button>
   </div>
@@ -126,7 +125,6 @@
     <input id="regEmail" class="login-input" type="email" placeholder="Email" />
     <input id="regPassword" class="login-input" type="password" placeholder="Password" />
 
-    <!-- FIXED BUTTONS (ONLY CHANGE) -->
     <button class="login-btn" onclick="registerUser()">REGISTER</button>
     <button class="secondary-btn" onclick="openScreen('loginScreen')">Back to Login</button>
   </div>
@@ -143,14 +141,34 @@
 <div id="popup" class="popup"></div>
 <div id="achievementPopup" class="achievementPopup"></div>
 
-<!-- AUDIO -->
-<audio id="bgAmbience" loop preload="auto"><source src="sfx/ambience.mp3"></audio>
-<audio id="sfxClick" preload="auto"><source src="sfx/click.mp3"></audio>
-<audio id="sfxXP" preload="auto"><source src="sfx/xp.mp3"></audio>
-<audio id="sfxLevel" preload="auto"><source src="sfx/levelup.mp3"></audio>
-<audio id="sfxPrestige" preload="auto"><source src="sfx/prestige.mp3"></audio>
-<audio id="sfxMission" preload="auto"><source src="sfx/mission.mp3"></audio>
-<audio id="sfxAchievement" preload="auto"><source src="sfx/achievement.mp3"></source></audio>
+<!-- AUDIO (FIXED + VALID) -->
+<audio id="bgAmbience" loop preload="auto">
+  <source src="sfx/ambience.mp3">
+</audio>
+
+<audio id="sfxClick" preload="auto">
+  <source src="sfx/click.mp3">
+</audio>
+
+<audio id="sfxXP" preload="auto">
+  <source src="sfx/xp.mp3">
+</audio>
+
+<audio id="sfxLevel" preload="auto">
+  <source src="sfx/levelup.mp3">
+</audio>
+
+<audio id="sfxPrestige" preload="auto">
+  <source src="sfx/prestige.mp3">
+</audio>
+
+<audio id="sfxMission" preload="auto">
+  <source src="sfx/mission.mp3">
+</audio>
+
+<audio id="sfxAchievement" preload="auto">
+  <source src="sfx/achievement.mp3">
+</audio>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
