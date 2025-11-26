@@ -230,3 +230,31 @@ document.addEventListener("DOMContentLoaded", () => {
   checkMissionResets();
   renderMissionsUI();
 });
+/* ------------------------------------------------------------
+   HIDDEN DEV RESET — HOLD BACK 3 SECONDS
+------------------------------------------------------------ */
+document.addEventListener("DOMContentLoaded", () => {
+  const backBtn = document.querySelector("#missionsScreen .back");
+  if (!backBtn) return;
+
+  let holdTimer = null;
+
+  backBtn.addEventListener("touchstart", startHold);
+  backBtn.addEventListener("mousedown", startHold);
+
+  backBtn.addEventListener("touchend", cancelHold);
+  backBtn.addEventListener("mouseup", cancelHold);
+  backBtn.addEventListener("mouseleave", cancelHold);
+
+  function startHold() {
+    holdTimer = setTimeout(() => {
+      localStorage.removeItem("missionLocal");
+      popup("Missions Reset");
+      updateMissionProgress();
+    }, 3000); // 3 seconds
+  }
+
+  function cancelHold() {
+    clearTimeout(holdTimer);
+  }
+});
