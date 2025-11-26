@@ -80,16 +80,16 @@ function missionTrackXP(xp) {
    BLUEPRINTS
 ------------------------------------------------------------ */
 const dailyMissions = [
-  { id: "d1", title: "Study 20 minutes", need: 20, type: "dailyMinutes", xp: 80, done: false, claimed: false },
-  { id: "d2", title: "Study 1 hour", need: 60, type: "dailyMinutes", xp: 200, done: false, claimed: false },
-  { id: "d3", title: "Earn 150 XP", need: 150, type: "dailyXP", xp: 150, done: false, claimed: false }
+  { id: "d1", title: "Study 20 minutes", need: 20, type: "dailyMin", xp: 80, done: false, claimed: false },
+  { id: "d2", title: "Study 1 hour",     need: 60, type: "dailyMin", xp: 200, done: false, claimed: false },
+  { id: "d3", title: "Earn 150 XP",      need: 150, type: "dailyXP", xp: 150, done: false, claimed: false }
 ];
 
 const weeklyMissions = [
-  { id: "w1", title: "Study 3 hours", need: 180, type: "weeklyMinutes", xp: 350, done: false, claimed: false },
-  { id: "w2", title: "Earn 1000 XP", need: 1000, type: "weeklyXP", xp: 500, done: false, claimed: false },
-  { id: "w3", title: "7-day streak", need: 7, type: "streak", xp: 800, done: false, claimed: false },
-  { id: "w4", title: "Study 6 hours", need: 360, type: "weeklyMinutes", xp: 1200, done: false, claimed: false }
+  { id: "w1", title: "Study 3 hours", need: 180, type: "weeklyMin", xp: 350, done: false, claimed: false },
+  { id: "w2", title: "Earn 1000 XP",  need: 1000, type: "weeklyXP", xp: 500, done: false, claimed: false },
+  { id: "w3", title: "7-day streak",  need: 7, type: "streak", xp: 800, done: false, claimed: false },
+  { id: "w4", title: "Study 6 hours", need: 360, type: "weeklyMin", xp: 1200, done: false, claimed: false }
 ];
 
 /* ------------------------------------------------------------
