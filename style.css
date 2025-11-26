@@ -376,6 +376,33 @@ body::-webkit-scrollbar-thumb {
   z-index: 99999;
 }
 
+/* XP POPUP (centered glow) */
+#popup {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,20,0.75);
+  padding: 14px 24px;
+  border-radius: 14px;
+  color: #00eaff;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: 2px solid #00eaff;
+  text-shadow: 0 0 12px #00eaff;
+  box-shadow: 0 0 22px #00eaffaa;
+  display: none;
+  z-index: 999999;
+  animation: popupFloat 1.2s ease forwards;
+}
+
+@keyframes popupFloat {
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.9); }
+  15% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -15px) scale(1); }
+}
 .achievementPopup {
   position: fixed;
   top: -200px;
