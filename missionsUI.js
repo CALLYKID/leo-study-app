@@ -40,7 +40,7 @@ function checkMissionResets() {
   // WEEKLY RESET — correct system
   const now = new Date();
   const year = now.getFullYear();
-  const week = Math.floor((now.getDate() - now.getDay() + 12) / 7);
+  const week = Math.floor((now.getDate() - now.getDay() + 12) / 7); // ISO-like week number
   const weekID = `${year}-W${week}`;
 
   if (missionLocal.lastWeekly !== weekID) {
@@ -55,7 +55,7 @@ function checkMissionResets() {
   }
 
   saveMissionLocal();
-}
+}  // <----- this was missing
 
 /* ------------------------------------------------------------
    TRACKING HOOKS (CALLED BY app.js)
