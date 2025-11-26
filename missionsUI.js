@@ -38,7 +38,7 @@ function checkMissionResets() {
     });
   }
 
-  // WEEKLY RESET
+  // WEEKLY RESET — Monday ONLY
   const now = new Date();
   const weekID = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
 
@@ -57,13 +57,13 @@ function checkMissionResets() {
 }
 
 /* ------------------------------------------------------------
-   TRIGGER DAILY/WEEKLY RESET ON LOAD
+   OVERRIDE addMinutes + addXP CONNECTION
 ------------------------------------------------------------ */
 window.addEventListener("DOMContentLoaded", () => {
   checkMissionResets();
 });
 
-/* CALLED BY app.js AFTER XP & MINUTES INCREASE */
+/* CALLED BY app.js AFTER XP GAIN */
 function missionTrackMinutes(min) {
   missionLocal.dailyMin += min;
   missionLocal.weeklyMin += min;
@@ -93,7 +93,7 @@ const weeklyMissions = [
 ];
 
 /* ------------------------------------------------------------
-   PROGRESS CALCULATOR — FIXED
+   PROGRESS CALCULATOR
 ------------------------------------------------------------ */
 function getMissionProgress(m) {
   let current = 0;
@@ -126,7 +126,7 @@ function updateMissionProgress() {
 }
 
 /* ------------------------------------------------------------
-   UI RENDER
+   RENDER UI
 ------------------------------------------------------------ */
 function renderMissionsUI() {
   const screen = document.getElementById("missionsScreen");
@@ -205,7 +205,7 @@ function claimMission(id) {
 }
 
 /* ------------------------------------------------------------
-   XP FLOATING POPUP
+   XP POP-UP
 ------------------------------------------------------------ */
 function spawnMissionXP(id, text) {
   const btn = document.querySelector(`[onclick="claimMission('${id}')"]`);
@@ -250,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
     holdTimer = setTimeout(() => {
       localStorage.removeItem("missionLocal");
       popup("Missions Reset");
-      location.reload();
+      updateMissionProgress();
     }, 3000);
   }
 
