@@ -381,7 +381,12 @@ function buyReward(id){
   popup(`Unlocked: ${r.name}!`);
 }
 
-
+function updateAllUI(){
+  updateXPBar();
+  updateRewardsDisplay();
+  renderBadges();
+  updateLoggedUserBar(currentUser);
+}
 
 /* ------------------------------------------------------------
    UI UPDATE
