@@ -562,8 +562,9 @@ auth.onAuthStateChanged(async user=>{
   currentUser = user || null;
 
   if(user){
-    await loadCloud();
-  }
+  await loadCloud();
+  loadUserData();   // <-- ADD THIS
+}
 
   updateAllUI();
   refreshMenu();
