@@ -21,6 +21,13 @@ body {
   min-height: 100vh;
 }
 
+#glassBreak,
+#prestigeBurst {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* doesn't matter since pointer-events is none */
+}
 /* Neon scrollbar */
 body::-webkit-scrollbar { width: 8px; }
 body::-webkit-scrollbar-track { background: rgba(0,0,0,0.25); border-radius: 10px; }
