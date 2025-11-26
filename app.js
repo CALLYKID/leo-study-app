@@ -209,6 +209,7 @@ function calcXP(min){
 
 function addMinutes(m){
   minutes += m;
+  missionTrackMinutes(m);   // << REQUIRED
   addXP(calcXP(m));
   updateStreak();
   updateMissionProgress();
@@ -219,6 +220,7 @@ function addXP(amount){
   playSFX("sfxXP");
 
   const gain = Math.floor(amount * xpMultiplier);
+  missionTrackXP(gain);   // << REQUIRED
 
   xp += gain;
   totalXP += gain;
