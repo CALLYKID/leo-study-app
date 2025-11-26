@@ -514,3 +514,81 @@ body::-webkit-scrollbar-thumb {
   text-align: center;
   letter-spacing: 2px;
 }
+/* ----------------------------------------------------
+   LOGIN & REGISTER UI
+---------------------------------------------------- */
+
+.login-title {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 25px;
+  color: #00eaff;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 90%;
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 25px;
+  background: rgba(0,0,20,0.45);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  border: 2px solid #00eaff55;
+  box-shadow: 0 0 18px #00eaff33;
+}
+
+.login-input {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: 2px solid #00eaff66;
+  background: rgba(0,0,0,0.35);
+  color: #00eaff;
+  outline: none;
+  transition: 0.25s ease;
+}
+
+.login-input:focus {
+  border-color: #00eaff;
+  box-shadow: 0 0 12px #00eaff;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0,255,255,0.1);
+  border: 2px solid #00eaff;
+  color: #00eaff;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 18px #00eaff;
+}
+
+.secondary-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(150,0,255,0.12);
+  border: 2px solid #9400ff;
+  color: #caaaff;
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.secondary-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 18px #9400ff;
+}
