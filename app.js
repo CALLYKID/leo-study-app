@@ -91,7 +91,12 @@ function showAchievementPopup(name){
 function updateSyncStatus(msg){
   const el = document.getElementById("syncStatus");
   if(!el) return;
+
   el.innerText = `SYNC: ${msg}`;
+
+  // flash green for successful sync
+  el.classList.add("good");
+  setTimeout(() => el.classList.remove("good"), 500);
 }
 
 
