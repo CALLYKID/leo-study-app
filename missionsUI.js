@@ -28,30 +28,26 @@ function checkMissionResets() {
 
   // DAILY RESET
   if (missionLocal.lastDaily !== today) {
-    missionLocal.dailyMinutes = 0;
-    missionLocal.dailyXP = 0;
-    missionLocal.lastDaily = today;
+  missionLocal.dailyMin = 0;
+  missionLocal.dailyXP = 0;
+  missionLocal.lastDaily = today;
 
-    dailyMissions.forEach(m => {
-      m.done = false;
-      m.claimed = false;
-    });
-  }
+  dailyMissions.forEach(m => {
+    m.done = false;
+    m.claimed = false;
+  });
+}
 
-  // WEEKLY RESET — Monday
-  const now = new Date();
-  const weekID = `${now.getFullYear()}-${now.getWeek?.() ?? now.getMonth()}-${now.getDay()}`;
+if (missionLocal.lastWeekly !== weekID && now.getDay() === 1) {
+  missionLocal.weeklyMin = 0;
+  missionLocal.weeklyXP = 0;
+  missionLocal.lastWeekly = weekID;
 
-  if (missionLocal.lastWeekly !== weekID && now.getDay() === 1) {
-    missionLocal.weeklyMinutes = 0;
-    missionLocal.weeklyXP = 0;
-    missionLocal.lastWeekly = weekID;
-
-    weeklyMissions.forEach(m => {
-      m.done = false;
-      m.claimed = false;
-    });
-  }
+  weeklyMissions.forEach(m => {
+    m.done = false;
+    m.claimed = false;
+  });
+}
 
   saveMissionLocal();
 }
