@@ -98,8 +98,8 @@ const weeklyMissions = [
 function getMissionProgress(m) {
   let current = 0;
 
-  if (m.type === "dailyMinutes") current = missionLocal.dailyMin;
-  if (m.type === "weeklyMinutes") current = missionLocal.weeklyMin;
+  if (m.type === "dailyMin") current = missionLocal.dailyMin;
+  if (m.type === "weeklyMin") current = missionLocal.weeklyMin;
   if (m.type === "dailyXP") current = missionLocal.dailyXP;
   if (m.type === "weeklyXP") current = missionLocal.weeklyXP;
   if (m.type === "streak") current = streak;
