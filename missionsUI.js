@@ -158,11 +158,17 @@ function renderMissionsUI() {
 function missionCard(m) {
   const p = getMissionProgress(m);
 
+  // Correct unit label
+  let unit = "units";
+  if (m.type.includes("Minutes")) unit = "min";
+  else if (m.type.includes("XP")) unit = "XP";
+  else if (m.type === "streak") unit = "days";
+
   return `
     <div class="mission-card ${m.done ? "complete" : ""}">
       <div class="mission-info">
         <h2>${m.title}</h2>
-        <p>${p.value}/${m.need} ${m.type.includes("Minutes") ? "min" : m.type.includes("XP") ? "XP" : "days"}</p>
+        <p>${p.value}/${m.need} ${unit}</p>
 
         <div class="mission-bar">
           <div class="mission-fill" style="width:${p.percent}%"></div>
