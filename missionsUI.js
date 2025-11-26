@@ -1,10 +1,9 @@
 /* =====================================================================
-   STUDY ADDICT — FIXED MISSIONS SYSTEM
-   Daily + Weekly tracking • Correct progress • Auto reset · No bugs
+   STUDY ADDICT — MISSIONS SYSTEM (FINAL STABLE VERSION)
 ===================================================================== */
 
 /* ------------------------------------------------------------
-   STORAGE FOR RESET (local only, not cloud)
+   LOCAL STORAGE SAVE
 ------------------------------------------------------------ */
 let missionLocal = JSON.parse(localStorage.getItem("missionLocal")) || {
   dailyMin: 0,
@@ -38,14 +37,14 @@ function checkMissionResets() {
     });
   }
 
-  // WEEKLY RESET — Monday ONLY
+  // WEEKLY RESET — runs once per Monday
   const now = new Date();
-  const weekID = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const mondayID = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 
-  if (missionLocal.lastWeekly !== weekID && now.getDay() === 1) {
+  if (missionLocal.lastWeekly !== mondayID && now.getDay() === 1) {
     missionLocal.weeklyMin = 0;
     missionLocal.weeklyXP = 0;
-    missionLocal.lastWeekly = weekID;
+    missionLocal.lastWeekly = mondayID;
 
     weeklyMissions.forEach(m => {
       m.done = false;
@@ -57,27 +56,22 @@ function checkMissionResets() {
 }
 
 /* ------------------------------------------------------------
-   OVERRIDE addMinutes + addXP CONNECTION
+   TRACKING HOOKS (CALLED BY app.js)
 ------------------------------------------------------------ */
-window.addEventListener("DOMContentLoaded", () => {
-  checkMissionResets();
-});
-
-/* CALLED BY app.js AFTER XP GAIN */
 function missionTrackMinutes(min) {
-  missionLocal.dailyMin += min;
-  missionLocal.weeklyMin += min;
+  missionLocal.dailyMin += Number(min) || 0;
+  missionLocal.weeklyMin += Number(min) || 0;
   saveMissionLocal();
 }
 
 function missionTrackXP(xp) {
-  missionLocal.dailyXP += xp;
-  missionLocal.weeklyXP += xp;
+  missionLocal.dailyXP += Number(xp) || 0;
+  missionLocal.weeklyXP += Number(xp) || 0;
   saveMissionLocal();
 }
 
 /* ------------------------------------------------------------
-   BLUEPRINTS
+   MISSION DEFINITIONS
 ------------------------------------------------------------ */
 const dailyMissions = [
   { id: "d1", title: "Study 20 minutes", need: 20, type: "dailyMin", xp: 80, done: false, claimed: false },
@@ -93,9 +87,8 @@ const weeklyMissions = [
 ];
 
 /* ------------------------------------------------------------
-   PROGRESS CALCULATOR
+   PROGRESS CALCULATOR (FIXES NaN)
 ------------------------------------------------------------ */
-
 function getMissionProgress(m) {
   let current = 0;
 
@@ -103,24 +96,24 @@ function getMissionProgress(m) {
   if (m.type === "weeklyMin") current = missionLocal.weeklyMin;
   if (m.type === "dailyXP") current = missionLocal.dailyXP;
   if (m.type === "weeklyXP") current = missionLocal.weeklyXP;
-  if (m.type === "streak") current = streak;
+  if (m.type === "streak") current = Number(streak) || 0;
 
-  // Fix NaN
-  current = Number(current) || 0;
+  current = Number(current) || 0; // FIX NaN
 
   const percent = Math.min(100, Math.floor((current / m.need) * 100));
 
   return { value: current, percent };
 }
+
 /* ------------------------------------------------------------
-   MAIN UPDATE CALL
+   UPDATE MISSIONS
 ------------------------------------------------------------ */
 function updateMissionProgress() {
   checkMissionResets();
 
   [...dailyMissions, ...weeklyMissions].forEach(m => {
     const p = getMissionProgress(m);
-    if (!m.done && p.value >= m.need) {
+    if (p.value >= m.need) {
       m.done = true;
     }
   });
@@ -129,7 +122,7 @@ function updateMissionProgress() {
 }
 
 /* ------------------------------------------------------------
-   RENDER UI
+   UI RENDER
 ------------------------------------------------------------ */
 function renderMissionsUI() {
   const screen = document.getElementById("missionsScreen");
@@ -162,39 +155,37 @@ function missionCard(m) {
   const p = getMissionProgress(m);
 
   let unit = "units";
-
-  if (m.type === "dailyMin" || m.type === "weeklyMin") unit = "min";
-  if (m.type === "dailyXP"  || m.type === "weeklyXP")  unit = "XP";
+  if (m.type.includes("Min")) unit = "min";
+  if (m.type.includes("XP")) unit = "XP";
   if (m.type === "streak") unit = "days";
+
+  let claimBtn = "";
+
+  if (m.claimed) claimBtn = `<button class="claim-btn claimed">CLAIMED</button>`;
+  else if (m.done) claimBtn = `<button class="claim-btn" onclick="claimMission('${m.id}')">CLAIM</button>`;
+  else claimBtn = `<button class="claim-btn locked">...</button>`;
 
   return `
     <div class="mission-card ${m.done ? "complete" : ""}">
       <div class="mission-info">
         <h2>${m.title}</h2>
         <p>${p.value}/${m.need} ${unit}</p>
-
         <div class="mission-bar">
           <div class="mission-fill" style="width:${p.percent}%"></div>
         </div>
       </div>
-
-      ${
-        m.claimed
-          ? `<button class="claim-btn claimed">CLAIMED</button>`
-          : m.done
-          ? `<button class="claim-btn" onclick="claimMission('${m.id}')">CLAIM</button>`
-          : `<button class="claim-btn locked">...</button>`
-      }
+      ${claimBtn}
     </div>
   `;
 }
 
 /* ------------------------------------------------------------
-   CLAIM
+   CLAIM MISSION
 ------------------------------------------------------------ */
 function claimMission(id) {
-  let m = dailyMissions.find(x => x.id === id) ||
-          weeklyMissions.find(x => x.id === id);
+  const m =
+    dailyMissions.find(x => x.id === id) ||
+    weeklyMissions.find(x => x.id === id);
 
   if (!m) return;
   if (!m.done) return popup("Mission not completed!");
@@ -202,6 +193,7 @@ function claimMission(id) {
 
   playSFX("sfxMission");
   m.claimed = true;
+
   addXP(m.xp);
   spawnMissionXP(id, `+${m.xp} XP`);
 
@@ -209,7 +201,7 @@ function claimMission(id) {
 }
 
 /* ------------------------------------------------------------
-   XP POP-UP
+   XP POPUP
 ------------------------------------------------------------ */
 function spawnMissionXP(id, text) {
   const btn = document.querySelector(`[onclick="claimMission('${id}')"]`);
@@ -221,8 +213,8 @@ function spawnMissionXP(id, text) {
   const fx = document.createElement("div");
   fx.className = "mission-xp-pop";
   fx.innerText = text;
-
   card.appendChild(fx);
+
   setTimeout(() => fx.remove(), 900);
 }
 
@@ -235,30 +227,18 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ------------------------------------------------------------
-   HIDDEN DEV RESET — HOLD BACK 3 SECONDS
+   DEV RESET
 ------------------------------------------------------------ */
-document.addEventListener("DOMContentLoaded", () => {
-  const backBtn = document.querySelector("#missionsScreen .back");
-  if (!backBtn) return;
-
-  let holdTimer = null;
-
-  backBtn.addEventListener("touchstart", startHold);
-  backBtn.addEventListener("mousedown", startHold);
-
-  backBtn.addEventListener("touchend", cancelHold);
-  backBtn.addEventListener("mouseup", cancelHold);
-  backBtn.addEventListener("mouseleave", cancelHold);
-
-  function startHold() {
-    holdTimer = setTimeout(() => {
-      localStorage.removeItem("missionLocal");
-      popup("Missions Reset");
-      updateMissionProgress();
-    }, 3000);
-  }
-
-  function cancelHold() {
-    clearTimeout(holdTimer);
-  }
-});
+function devResetMissions() {
+  localStorage.removeItem("missionLocal");
+  popup("Missions reset");
+  missionLocal = {
+    dailyMin: 0,
+    dailyXP: 0,
+    lastDaily: null,
+    weeklyMin: 0,
+    weeklyXP: 0,
+    lastWeekly: null
+  };
+  updateMissionProgress();
+}
