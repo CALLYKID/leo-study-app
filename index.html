@@ -175,6 +175,17 @@ RESET MISSIONS
 
 <!-- SYNC BAR -->
 <div id="syncStatus" class="syncBar">GUEST MODE</div>
+<script>
+/* MOBILE DEBUG OVERLAY — SHOW ALL ELEMENT BOXES */
+document.addEventListener("DOMContentLoaded", () => {
+  const all = document.querySelectorAll("*");
+  all.forEach(el => {
+    el.style.outline = "1px solid rgba(0,255,255,0.3)";
+    el.style.background = "rgba(0,255,255,0.03)";
+  });
 
+  alert("DEBUG MODE ENABLED: All elements are now outlined.");
+});
+</script>
 </body>
 </html>
