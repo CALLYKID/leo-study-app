@@ -38,20 +38,21 @@ function checkMissionResets() {
   }
 
   // WEEKLY RESET — correct system
-const now = new Date();
-const year = now.getFullYear();
-const week = Math.floor((now.getDate() - now.getDay() + 12) / 7); // ISO-like week number
-const weekID = `${year}-W${week}`;
+  const now = new Date();
+  const year = now.getFullYear();
+  const week = Math.floor((now.getDate() - now.getDay() + 12) / 7);
+  const weekID = `${year}-W${week}`;
 
-if (missionLocal.lastWeekly !== weekID) {
-  missionLocal.weeklyMin = 0;
-  missionLocal.weeklyXP = 0;
-  missionLocal.lastWeekly = weekID;
+  if (missionLocal.lastWeekly !== weekID) {
+    missionLocal.weeklyMin = 0;
+    missionLocal.weeklyXP = 0;
+    missionLocal.lastWeekly = weekID;
 
-  weeklyMissions.forEach(m => {
-    m.done = false;
-    m.claimed = false;
-  });
+    weeklyMissions.forEach(m => {
+      m.done = false;
+      m.claimed = false;
+    });
+  }
 
   saveMissionLocal();
 }
