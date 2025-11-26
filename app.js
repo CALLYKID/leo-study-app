@@ -387,17 +387,6 @@ function updateXPBar(){
     `Total XP: ${totalXP}`;
 }
 
-
-
-/* ------------------------------------------------------------
-   MISSIONS — Connect app.js to missionsUI.js
------------------------------------------------------------- */
-function updateMissionProgress(){
-  if (typeof renderMissionsUI === "function") renderMissionsUI();
-  if (typeof checkBadges === "function") checkBadges();
-}
-
-
 /* ------------------------------------------------------------
    MENU SYSTEM — FINAL FIX
 ------------------------------------------------------------ */
