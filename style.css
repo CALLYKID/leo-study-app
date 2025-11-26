@@ -619,3 +619,37 @@ body::-webkit-scrollbar-thumb {
   transform: translateY(-3px);
   box-shadow: 0 0 18px #9400ff;
 }
+/* ------------------------------------------------------------
+   SYNC STATUS BAR — NEON GAMER STYLE
+------------------------------------------------------------ */
+.syncBar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+
+  background: rgba(0, 0, 10, 0.45);
+  padding: 10px 18px;
+
+  border-radius: 12px;
+  font-size: 14px;
+  letter-spacing: 1px;
+
+  color: #00eaff;
+  border: 1px solid #00eaff55;
+
+  box-shadow: 0 0 15px #00eaff55;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  transition: 0.25s ease;
+  z-index: 99999;
+  opacity: 0.95;
+}
+
+/* Glow pulse on successful sync */
+.syncBar.good {
+  color: #00ffbf;
+  border-color: #00ffbf55;
+  box-shadow: 0 0 20px #00ffbf99;
+  transform: scale(1.04);
+}
