@@ -469,3 +469,8 @@ body::-webkit-scrollbar-thumb {
   box-shadow: 0 0 20px #00ffbf99;
   transform: scale(1.04);
 }
+#glassBreak,
+#prestigeBurst {
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
