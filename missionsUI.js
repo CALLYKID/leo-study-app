@@ -1,58 +1,133 @@
 /* =====================================================================
-   STUDY ADDICT — NEXT-GEN MISSIONS SYSTEM
-   Neon progress bars • Animated claim • Auto tracking • XP particles
+   STUDY ADDICT — FIXED MISSIONS SYSTEM
+   Daily + Weekly tracking • Correct progress • Auto reset · No bugs
 ===================================================================== */
 
+/* ------------------------------------------------------------
+   STORAGE FOR RESET (local only, not cloud)
+------------------------------------------------------------ */
+let missionLocal = JSON.parse(localStorage.getItem("missionLocal")) || {
+  dailyMinutes: 0,
+  dailyXP: 0,
+  lastDaily: null,
 
-/* -----------------------------------------
-   MISSION BLUEPRINTS
------------------------------------------- */
+  weeklyMinutes: 0,
+  weeklyXP: 0,
+  lastWeekly: null
+};
 
-// DAILY MISSIONS
+function saveMissionLocal() {
+  localStorage.setItem("missionLocal", JSON.stringify(missionLocal));
+}
+
+/* ------------------------------------------------------------
+   AUTO RESET SYSTEM
+------------------------------------------------------------ */
+function checkMissionResets() {
+  const today = new Date().toDateString();
+
+  // DAILY RESET
+  if (missionLocal.lastDaily !== today) {
+    missionLocal.dailyMinutes = 0;
+    missionLocal.dailyXP = 0;
+    missionLocal.lastDaily = today;
+
+    dailyMissions.forEach(m => {
+      m.done = false;
+      m.claimed = false;
+    });
+  }
+
+  // WEEKLY RESET — Monday
+  const now = new Date();
+  const weekID = `${now.getFullYear()}-${now.getWeek?.() ?? now.getMonth()}-${now.getDay()}`;
+
+  if (missionLocal.lastWeekly !== weekID && now.getDay() === 1) {
+    missionLocal.weeklyMinutes = 0;
+    missionLocal.weeklyXP = 0;
+    missionLocal.lastWeekly = weekID;
+
+    weeklyMissions.forEach(m => {
+      m.done = false;
+      m.claimed = false;
+    });
+  }
+
+  saveMissionLocal();
+}
+
+/* ------------------------------------------------------------
+   OVERRIDE addMinutes + addXP CONNECTION
+------------------------------------------------------------ */
+window.addEventListener("DOMContentLoaded", () => {
+  checkMissionResets();
+});
+
+/* CALLED BY app.js AFTER XP GAIN */
+function missionTrackMinutes(min) {
+  missionLocal.dailyMinutes += min;
+  missionLocal.weeklyMinutes += min;
+  saveMissionLocal();
+}
+
+function missionTrackXP(xp) {
+  missionLocal.dailyXP += xp;
+  missionLocal.weeklyXP += xp;
+  saveMissionLocal();
+}
+
+/* ------------------------------------------------------------
+   BLUEPRINTS
+------------------------------------------------------------ */
 const dailyMissions = [
-  { id: "d1", title: "Study 20 minutes", need: 20, type: "minutes", xp: 80, done: false, claimed: false },
-  { id: "d2", title: "Study 1 hour", need: 60, type: "minutes", xp: 200, done: false, claimed: false },
-  { id: "d3", title: "Earn 150 XP", need: 150, type: "xp", xp: 150, done: false, claimed: false }
+  { id: "d1", title: "Study 20 minutes", need: 20, type: "dailyMinutes", xp: 80, done: false, claimed: false },
+  { id: "d2", title: "Study 1 hour", need: 60, type: "dailyMinutes", xp: 200, done: false, claimed: false },
+  { id: "d3", title: "Earn 150 XP", need: 150, type: "dailyXP", xp: 150, done: false, claimed: false }
 ];
 
-// WEEKLY MISSIONS
 const weeklyMissions = [
-  { id: "w1", title: "Study 3 hours", need: 180, type: "minutes", xp: 350, done: false, claimed: false },
-  { id: "w2", title: "Earn 1000 XP", need: 1000, type: "xp", xp: 500, done: false, claimed: false },
+  { id: "w1", title: "Study 3 hours", need: 180, type: "weeklyMinutes", xp: 350, done: false, claimed: false },
+  { id: "w2", title: "Earn 1000 XP", need: 1000, type: "weeklyXP", xp: 500, done: false, claimed: false },
   { id: "w3", title: "7-day streak", need: 7, type: "streak", xp: 800, done: false, claimed: false },
-  { id: "w4", title: "Study 6 hours", need: 360, type: "minutes", xp: 1200, done: false, claimed: false }
+  { id: "w4", title: "Study 6 hours", need: 360, type: "weeklyMinutes", xp: 1200, done: false, claimed: false }
 ];
 
+/* ------------------------------------------------------------
+   PROGRESS CALCULATOR (FIXED!)
+------------------------------------------------------------ */
+function getMissionProgress(m) {
+  let current = 0;
 
-/* -----------------------------------------
-   AUTO-CHECK PROGRESS
------------------------------------------- */
+  if (m.type === "dailyMinutes") current = missionLocal.dailyMinutes;
+  if (m.type === "weeklyMinutes") current = missionLocal.weeklyMinutes;
+  if (m.type === "dailyXP") current = missionLocal.dailyXP;
+  if (m.type === "weeklyXP") current = missionLocal.weeklyXP;
+  if (m.type === "streak") current = streak;
+
+  const percent = Math.min(100, Math.floor((current / m.need) * 100));
+
+  return { value: current, percent };
+}
+
+/* ------------------------------------------------------------
+   MAIN UPDATE CALL (CALLED FROM app.js)
+------------------------------------------------------------ */
 function updateMissionProgress() {
+  checkMissionResets();
 
-  // DAILY
-  dailyMissions.forEach(m => {
-    if (m.done === false) {
-      if (m.type === "minutes" && minutes >= m.need) m.done = true;
-      if (m.type === "xp" && totalXP >= m.need) m.done = true;
-    }
-  });
-
-  // WEEKLY
-  weeklyMissions.forEach(m => {
-    if (m.done === false) {
-      if (m.type === "minutes" && minutes >= m.need) m.done = true;
-      if (m.type === "xp" && totalXP >= m.need) m.done = true;
-      if (m.type === "streak" && streak >= m.need) m.done = true;
+  [...dailyMissions, ...weeklyMissions].forEach(m => {
+    const p = getMissionProgress(m);
+    if (!m.done && p.value >= m.need) {
+      m.done = true;
     }
   });
 
   renderMissionsUI();
 }
 
-
-/* -----------------------------------------
-   RENDER MISSIONS UI
------------------------------------------- */
+/* ------------------------------------------------------------
+   RENDER UI
+------------------------------------------------------------ */
 function renderMissionsUI() {
   const screen = document.getElementById("missionsScreen");
 
@@ -77,18 +152,17 @@ function renderMissionsUI() {
   screen.innerHTML = html;
 }
 
-
-/* -----------------------------------------
-   BUILD INDIVIDUAL MISSION CARD
------------------------------------------- */
+/* ------------------------------------------------------------
+   CARD BUILDER
+------------------------------------------------------------ */
 function missionCard(m) {
   const p = getMissionProgress(m);
 
   return `
-    <div class="mission-card ${m.done ? 'complete' : ''}">
+    <div class="mission-card ${m.done ? "complete" : ""}">
       <div class="mission-info">
         <h2>${m.title}</h2>
-        <p>${p.value}/${m.need} ${m.type === 'minutes' ? 'min' : m.type === 'xp' ? 'XP' : 'days'}</p>
+        <p>${p.value}/${m.need} ${m.type.includes("Minutes") ? "min" : m.type.includes("XP") ? "XP" : "days"}</p>
 
         <div class="mission-bar">
           <div class="mission-fill" style="width:${p.percent}%"></div>
@@ -97,59 +171,42 @@ function missionCard(m) {
 
       ${
         m.claimed
-        ? `<button class="claim-btn claimed">CLAIMED</button>`
-        : m.done
-        ? `<button class="claim-btn" onclick="claimMission('${m.id}')">CLAIM</button>`
-        : `<button class="claim-btn locked">...</button>`
+          ? `<button class="claim-btn claimed">CLAIMED</button>`
+          : m.done
+          ? `<button class="claim-btn" onclick="claimMission('${m.id}')">CLAIM</button>`
+          : `<button class="claim-btn locked">...</button>`
       }
     </div>
   `;
 }
 
-
-/* -----------------------------------------
-   PROGRESS CALCULATOR
------------------------------------------- */
-function getMissionProgress(m) {
-  let current = 0;
-
-  if (m.type === "minutes") current = minutes;
-  if (m.type === "xp") current = totalXP;
-  if (m.type === "streak") current = streak;
-
-  const percent = Math.min(100, Math.floor((current / m.need) * 100));
-
-  return { value: current, percent };
-}
-
-
-/* -----------------------------------------
-   CLAIM MISSION
------------------------------------------- */
+/* ------------------------------------------------------------
+   CLAIM
+------------------------------------------------------------ */
 function claimMission(id) {
   let m = dailyMissions.find(x => x.id === id) ||
           weeklyMissions.find(x => x.id === id);
 
   if (!m) return;
   if (!m.done) return popup("Mission not completed!");
-  if (m.claimed) return popup("You already claimed this mission!");
+  if (m.claimed) return popup("Already claimed!");
 
   playSFX("sfxMission");
-  addXP(m.xp);
-
   m.claimed = true;
-
+  addXP(m.xp);
   spawnMissionXP(id, `+${m.xp} XP`);
 
   renderMissionsUI();
 }
 
-
-/* -----------------------------------------
-   XP FLOAT ANIMATION
------------------------------------------- */
+/* ------------------------------------------------------------
+   XP FLOATING POP-UP
+------------------------------------------------------------ */
 function spawnMissionXP(id, text) {
-  const card = document.querySelector(`[onclick="claimMission('${id}')"]`)?.closest(".mission-card");
+  const btn = document.querySelector(`[onclick="claimMission('${id}')"]`);
+  if (!btn) return;
+
+  const card = btn.closest(".mission-card");
   if (!card) return;
 
   const fx = document.createElement("div");
@@ -157,22 +214,13 @@ function spawnMissionXP(id, text) {
   fx.innerText = text;
 
   card.appendChild(fx);
-
-  setTimeout(() => fx.remove(), 800);
+  setTimeout(() => fx.remove(), 900);
 }
 
-
-/* -----------------------------------------
-   INIT
------------------------------------------- */
+/* ------------------------------------------------------------
+   INIT LOAD
+------------------------------------------------------------ */
 document.addEventListener("DOMContentLoaded", () => {
+  checkMissionResets();
   renderMissionsUI();
 });
-
-
-/* -----------------------------------------
-   LEGACY SUPPORT
------------------------------------------- */
-function displayMissions() {
-  // Not used anymore — kept for compatibility
-}
