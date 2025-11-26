@@ -159,9 +159,10 @@ function missionCard(m) {
   const p = getMissionProgress(m);
 
   let unit = "units";
-  if (m.type.includes("Minutes")) unit = "min";
-  else if (m.type.includes("XP")) unit = "XP";
-  else if (m.type === "streak") unit = "days";
+
+  if (m.type === "dailyMin" || m.type === "weeklyMin") unit = "min";
+  if (m.type === "dailyXP"  || m.type === "weeklyXP")  unit = "XP";
+  if (m.type === "streak") unit = "days";
 
   return `
     <div class="mission-card ${m.done ? "complete" : ""}">
