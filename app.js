@@ -17,6 +17,9 @@ let auth = firebase.auth();
 let db   = firebase.firestore();
 let currentUser = null;
 
+/* NEW */
+let guestMode = true;  
+
 
 
 /* ------------------------------------------------------------
@@ -32,7 +35,7 @@ function playSFX(id){
 
 
 /* ------------------------------------------------------------
-   AMBIENCE (MOBILE SAFE)
+   AMBIENCE
 ------------------------------------------------------------ */
 let ambienceStarted = false;
 
@@ -56,7 +59,7 @@ document.addEventListener("touchstart", unlockAmbience, { once: true });
 
 
 /* ------------------------------------------------------------
-   POPUPS & TOASTS
+   POPUPS / TOAST
 ------------------------------------------------------------ */
 function popup(msg){
   const p = document.getElementById("popup");
@@ -74,15 +77,6 @@ function showToast(msg){
   setTimeout(()=>t.style.display="none",2000);
 }
 
-function showAchievementPopup(name){
-  playSFX("sfxAchievement");
-  const p = document.getElementById("achievementPopup");
-  if(!p) return;
-  p.innerText = "🏆 " + name;
-  p.classList.add("show");
-  setTimeout(()=>p.classList.remove("show"),2500);
-}
-
 
 
 /* ------------------------------------------------------------
@@ -93,16 +87,22 @@ function updateSyncStatus(msg){
   if(!el) return;
 
   el.innerText = `SYNC: ${msg}`;
-
-  // flash green for successful sync
   el.classList.add("good");
   setTimeout(() => el.classList.remove("good"), 500);
 }
 
 
 
+/* NEW — block actions for guests */
+function requireLogin(){
+  popup("Login required to save progress!");
+  return false;
+}
+
+
+
 /* ------------------------------------------------------------
-   GAME VARIABLES
+   VARIABLES
 ------------------------------------------------------------ */
 let xp = 0;
 let totalXP = 0;
@@ -121,6 +121,7 @@ let xpMultiplier = 1;
 const PRESTIGE_UNLOCK = 20;
 
 let badgesUnlocked = {};
+let missionLocal = {};
 
 let rewards = [
   { id:"r1", name:"1 Hour Break Pass", cost:300, type:"consumable", uses:0, unlocked:false },
@@ -132,89 +133,58 @@ let rewards = [
 
 let badges = [
   { id:"L5", name:"Beginner’s Mark", desc:"Reach Level 5", icon:"⬆️", check:()=>level>=5 },
-  { id:"L20", name:"Rising Force", desc:"Reach Level 20", icon:"🔷", check:()=>level>=20 },
-  { id:"L50", name:"Elite Grinder", desc:"Reach Level 50", icon:"💠", check:()=>level>=50 },
-  { id:"L100",name:"Master’s Path", desc:"Reach Level 100",icon:"🏆",check:()=>level>=100 },
+  { id:"L20", name:"Rising Force", icon:"🔷", desc:"Reach Level 20", check:()=>level>=20 },
+  { id:"L50", name:"Elite Grinder", icon:"💠", desc:"Reach Level 50", check:()=>level>=50 },
+  { id:"L100",name:"Master’s Path", icon:"🏆", desc:"Reach Level 100", check:()=>level>=100 },
 
-  { id:"P1", name:"Prestiged I", desc:"Prestige once", icon:"🔁", check:()=>prestige>=1 },
-  { id:"P5", name:"Prestiged V", desc:"Prestige 5 times", icon:"🔄", check:()=>prestige>=5 },
+  { id:"P1", name:"Prestiged I", icon:"🔁", desc:"Prestige once", check:()=>prestige>=1 },
+  { id:"P5", name:"Prestiged V", icon:"🔄", desc:"Prestige 5 times", check:()=>prestige>=5 },
 
-  { id:"T10", name:"Active", desc:"Study 10 minutes", icon:"⏱️", check:()=>minutes>=10 },
-  { id:"T60", name:"Grinder", desc:"Study 1 hour", icon:"⌛", check:()=>minutes>=60 },
+  { id:"T10", name:"Active", icon:"⏱️", desc:"Study 10 minutes", check:()=>minutes>=10 },
+  { id:"T60", name:"Grinder", icon:"⌛", desc:"Study 1 hour", check:()=>minutes>=60 },
 
-  { id:"S3", name:"On a Roll", desc:"3-day streak", icon:"🔥", check:()=>streak>=3 },
-  { id:"S7", name:"One Week", desc:"7-day streak", icon:"💥", check:()=>streak>=7 },
+  { id:"S3", name:"On a Roll", icon:"🔥", desc:"3-day streak", check:()=>streak>=3 },
+  { id:"S7", name:"One Week", icon:"💥", desc:"7-day streak", check:()=>streak>=7 },
 
-  { id:"XP10K", name:"XP Hunter", desc:"10k XP", icon:"💎", check:()=>totalXP>=10000 },
+  { id:"XP10K", name:"XP Hunter", icon:"💎", desc:"10k XP", check:()=>totalXP>=10000 },
 
-  { id:"GOD", name:"Ascendant", desc:"Unlock all badges", icon:"🌈",
+  { id:"GOD", name:"Ascendant", icon:"🌈", desc:"Unlock all badges",
     check:()=>badges.filter(b=>b.id!=="GOD").every(b=>badgesUnlocked[b.id]) }
 ];
 
 
 
 /* ------------------------------------------------------------
-   HARD RESET
+   CLOUD SAVE  (GUEST MODE PROTECTED)
 ------------------------------------------------------------ */
-function confirmHardReset() {
-  playSFX("sfxClick");
+async function saveCloud(){
+  if(guestMode || !currentUser){
+    updateSyncStatus("GUEST");
+    return;
+  }
 
-  if (!confirm("Are you SURE you want to reset ALL XP?")) return;
+  await db.collection("users").doc(currentUser.uid).set({
+    xp,totalXP,xpBase,levelXP,level,xpNeeded,
+    minutes,streak,lastStudyDay,
+    prestige,xpMultiplier:(1+prestige*0.25),
+    badgesUnlocked,
+    missionLocal,
+    rewards,
+    updatedAt:new Date().toISOString()
+  },{merge:true});
 
-  xp = 0;
-  totalXP = 0;
-  xpBase = 0;
-  levelXP = 0;
-  level = 1;
-  xpNeeded = 500;
-
-  xpMultiplier = 1 + prestige * 0.25;
-
-  saveCloud();
-  updateAllUI();
-  popup("ALL XP RESET");
+  updateSyncStatus("OK");
 }
 
 
 
 /* ------------------------------------------------------------
-   CLOUD SAVE
+   LOAD CLOUD (GUEST-SAFE)
 ------------------------------------------------------------ */
-async function saveCloud(){
-  if(!currentUser) return;
-
-  await db.collection("users").doc(currentUser.uid).set({
-    xp: xp,
-    totalXP: totalXP,
-    xpBase: xpBase,
-    levelXP: levelXP,
-    level: level,
-    xpNeeded: xpNeeded,
-
-    minutes: minutes,
-    streak: streak,
-    lastStudyDay: lastStudyDay,
-
-    prestige: prestige,
-    xpMultiplier: 1 + prestige * 0.25,
-
-    badgesUnlocked: badgesUnlocked || {},
-
-    missionLocal: typeof missionLocal === "object" ? missionLocal : {},
-
-    rewards: Array.isArray(rewards) ? rewards : [],
-
-    updatedAt: new Date().toISOString()
-  }, { merge: true });
-
-  updateSyncStatus("OK");
-}
-
 async function loadCloud(){
-  if(!currentUser) return;
+  if(guestMode || !currentUser) return;
 
   const doc = await db.collection("users").doc(currentUser.uid).get();
-
   if(!doc.exists){
     await saveCloud();
     return;
@@ -237,9 +207,7 @@ async function loadCloud(){
   xpMultiplier = 1 + prestige * 0.25;
 
   badgesUnlocked = d.badgesUnlocked ?? {};
-
-  missionLocal = d.missionLocal ?? missionLocal;
-
+  missionLocal = d.missionLocal ?? {};
   rewards = Array.isArray(d.rewards) ? d.rewards : rewards;
 
   updateAllUI();
@@ -259,24 +227,13 @@ function calcXP(min){
 
 function addMinutes(m){
   minutes += m;
-
-  if(typeof missionTrackMinutes==="function") missionTrackMinutes(m);
-
   addXP(calcXP(m));
   updateStreak();
-
-  if(typeof updateMissionProgress==="function") updateMissionProgress();
-
   checkBadges();
 }
 
 function addXP(amount){
-  playSFX("sfxXP");
-
   const gain = Math.floor(amount * xpMultiplier);
-
-  if(typeof missionTrackXP==="function") missionTrackXP(gain);
-
   xp += gain;
   totalXP += gain;
   levelXP = xp - xpBase;
@@ -286,35 +243,33 @@ function addXP(amount){
     xpBase += xpNeeded;
     level++;
     xpNeeded = Math.floor(xpNeeded * 1.10);
-    playSFX("sfxLevel");
     popup("LEVEL UP!");
   }
 
   updateAllUI();
   saveCloud();
   popup(`+${gain} XP`);
-  return gain;
 }
 
 
 
 /* ------------------------------------------------------------
-   PRESTIGE
+   PRESTIGE (GUEST BLOCKED)
 ------------------------------------------------------------ */
 function tryPrestige(){
+  if(guestMode) return requireLogin();
   if(level < PRESTIGE_UNLOCK)
     return popup(`Reach Level ${PRESTIGE_UNLOCK} to Prestige`);
-  
   doPrestige();
 }
 
 function doPrestige(){
-  playSFX("sfxPrestige");
-
   prestige++;
   xpMultiplier = 1 + prestige * 0.25;
 
-  xp = xpBase = levelXP = 0;
+  xp = 0;
+  xpBase = 0;
+  levelXP = 0;
   xpNeeded = 500;
   level = 1;
 
@@ -338,9 +293,7 @@ function updateStreak(){
     popup(`🔥 Streak: ${streak} days`);
   }
 
-  const s = document.getElementById("streakCount");
-  if(s) s.innerText = `${streak} days`;
-
+  document.getElementById("streakCount").innerText = `${streak} days`;
   saveCloud();
 }
 
@@ -353,10 +306,9 @@ function checkBadges(){
   badges.forEach(b=>{
     if(!badgesUnlocked[b.id] && b.check()){
       badgesUnlocked[b.id] = true;
-      showAchievementPopup(b.name);
+      popup(`🏆 ${b.name}`);
     }
   });
-
   renderBadges();
   saveCloud();
 }
@@ -385,14 +337,11 @@ function renderBadges(){
 
 
 /* ------------------------------------------------------------
-   REWARDS
+   REWARDS  (GUEST BLOCKED)
 ------------------------------------------------------------ */
 function updateRewardsDisplay(){
   const shop = document.getElementById("shop");
-  const xpDisplay = document.getElementById("xpDisplay");
-
-  if(xpDisplay) xpDisplay.innerText = xp;
-  if(!shop) return;
+  document.getElementById("xpDisplay").innerText = xp;
 
   shop.innerHTML = "";
 
@@ -401,20 +350,24 @@ function updateRewardsDisplay(){
       r.cost>=2000 ? "reward-legendary" :
       r.cost>=1000 ? "reward-epic" :
       r.cost>=500  ? "reward-rare" :
-                     "reward-common";
+                    "reward-common";
 
     shop.innerHTML += `
       <div class="rewardItem ${rarity}">
         <span>${r.name}</span>
-        ${r.unlocked
-           ? `<span class="unlockedTag">✓ UNLOCKED</span>`
-           : `<button class="buyBtn" onclick="buyReward('${r.id}')">${r.cost} XP</button>`}
+        ${
+          r.unlocked
+          ? `<span class="unlockedTag">✓ UNLOCKED</span>`
+          : `<button class="buyBtn" onclick="buyReward('${r.id}')">${r.cost} XP</button>`
+        }
       </div>
     `;
   });
 }
 
 function buyReward(id){
+  if(guestMode) return requireLogin();
+
   let r = rewards.find(x=>x.id===id);
   if(!r) return;
 
@@ -422,8 +375,6 @@ function buyReward(id){
 
   xp -= r.cost;
   r.unlocked = true;
-
-  if(r.type==="consumable") r.uses = (r.uses||0) + 1;
 
   saveCloud();
   updateAllUI();
@@ -433,51 +384,36 @@ function buyReward(id){
 
 
 /* ------------------------------------------------------------
-   UI UPDATE (XP BAR)
+   UI UPDATE
 ------------------------------------------------------------ */
 function updateXPBar(){
-  const lvl = document.getElementById("levelNum");
-  if(lvl) lvl.innerText = level;
-
-  const xpt = document.getElementById("xpText");
-  if(xpt) xpt.innerText = `${xp} XP`;
+  document.getElementById("levelNum").innerText = level;
+  document.getElementById("xpText").innerText = `${xp} XP`;
+  document.getElementById("prestigeInfo").innerText = `Prestige ${prestige} • x${xpMultiplier.toFixed(2)} XP`;
+  document.getElementById("totalXPText").innerText = `Total XP: ${totalXP}`;
 
   const pct = ((xp - xpBase) / xpNeeded) * 100;
-  const fill = document.getElementById("xpFill");
-  if(fill) fill.style.width = Math.min(100,Math.max(0,pct)) + "%";
-
-  const pre = document.getElementById("prestigeInfo");
-  if(pre) pre.innerText = `Prestige ${prestige} • x${xpMultiplier.toFixed(2)} XP`;
-
-  const tot = document.getElementById("totalXPText");
-  if(tot) tot.innerText = `Total XP: ${totalXP}`;
+  document.getElementById("xpFill").style.width = Math.min(100,pct) + "%";
 }
 
 
 
 /* ------------------------------------------------------------
-   MENU / SCREEN SYSTEM
+   MENU / SCREENS
 ------------------------------------------------------------ */
 function refreshMenu(){
-  const out = document.getElementById("menuLoggedOut");
-  const In = document.getElementById("menuLoggedIn");
+  const guestBtn = document.getElementById("guestLoginBtn");
 
-  if(!out || !In) return;
-
-  if(!currentUser){
-    out.style.display = "flex";
-    In.style.display = "none";
+  if(guestMode){
+    guestBtn.style.display = "block";
   } else {
-    out.style.display = "none";
-    In.style.display = "flex";
+    guestBtn.style.display = "none";
   }
 }
 
 function openScreen(id){
   playSFX("sfxClick");
-
-  const menu = document.getElementById("menu");
-  if(menu) menu.style.display="none";
+  document.getElementById("menu").style.display = "none";
 
   document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
 
@@ -487,54 +423,19 @@ function openScreen(id){
     bar.style.pointerEvents = "none";
   }
 
-  const scr = document.getElementById(id);
-  if(scr) scr.style.display = "block";
+  document.getElementById(id).style.display = "block";
 }
 
 function closeScreen(id){
   playSFX("sfxClick");
 
-  const scr = document.getElementById(id);
-  if(scr) scr.style.display = "none";
+  document.getElementById(id).style.display = "none";
+  document.getElementById("menu").style.display = "flex";
 
-  const menu = document.getElementById("menu");
-  if(menu) menu.style.display = "flex";
-
-  if(currentUser){
-    const bar = document.getElementById("loggedUserBar");
-    if(bar){
-      bar.style.opacity = "1";
-      bar.style.pointerEvents = "auto";
-    }
-  }
-}
-
-
-
-/* ------------------------------------------------------------
-   LOGGED USER BAR
------------------------------------------------------------- */
-function updateLoggedUserBar(user){
   const bar = document.getElementById("loggedUserBar");
-  if(!bar) return;
-
-  // If user is not logged in
-  if(!user){
-    bar.style.opacity = "0";
-    return;
-  }
-
-  // Only show bar when menu is visible
-  const menu = document.getElementById("menu");
-  const onMenu = window.getComputedStyle(menu).display !== "none";
-
-  if(onMenu){
-    bar.innerText = `Logged in as: ${user.email}`;
+  if(currentUser && bar){
     bar.style.opacity = "1";
     bar.style.pointerEvents = "auto";
-  } else {
-    bar.style.opacity = "0";
-    bar.style.pointerEvents = "none";
   }
 }
 
@@ -552,6 +453,7 @@ function registerUser(){
   auth.createUserWithEmailAndPassword(email,pass)
   .then(async user=>{
     currentUser = user.user;
+    guestMode = false;
     await saveCloud();
     refreshMenu();
     closeScreen("registerScreen");
@@ -567,8 +469,8 @@ function loginUser(){
   auth.signInWithEmailAndPassword(email,pass)
   .then(async user=>{
     currentUser = user.user;
+    guestMode = false;
     await loadCloud();
-    updateLoggedUserBar(currentUser);
     refreshMenu();
     closeScreen("loginScreen");
   }).catch(e=>alert(e.message));
@@ -576,7 +478,6 @@ function loginUser(){
 
 function logout() {
   auth.signOut().then(() => {
-
     localStorage.clear();
 
     xp = 0;
@@ -585,32 +486,14 @@ function logout() {
     streak = 0;
     prestige = 0;
 
-    try {
-      document.getElementById("bgAmbience").pause();
-    } catch(e){}
+    try { document.getElementById("bgAmbience").pause(); } catch(e){}
 
+    guestMode = true;
     currentUser = null;
 
-    showToast("User logged out");
-
+    showToast("Logged out");
     location.reload();
-
-  }).catch(err => {
-    console.error(err);
-    showToast("Logout error");
   });
-}
-
-
-
-/* ------------------------------------------------------------
-   GLOBAL UI UPDATE
------------------------------------------------------------- */
-function updateAllUI(){
-  updateXPBar();
-  updateRewardsDisplay();
-  renderBadges();
-  updateLoggedUserBar(currentUser);
 }
 
 
@@ -622,7 +505,10 @@ auth.onAuthStateChanged(async user=>{
   currentUser = user || null;
 
   if(user){
+    guestMode = false;
     await loadCloud();
+  } else {
+    guestMode = true;
   }
 
   updateAllUI();
@@ -632,39 +518,9 @@ auth.onAuthStateChanged(async user=>{
 
 
 /* ------------------------------------------------------------
-   HIDE USER BAR ON SCROLL
------------------------------------------------------------- */
-let lastScroll = 0;
-
-window.addEventListener("scroll", () => {
-  const bar = document.getElementById("loggedUserBar");
-  const menu = document.getElementById("menu");
-
-  if(!bar || !menu) return;
-
-  const onMenu = window.getComputedStyle(menu).display !== "none";
-
-  if (!onMenu) {
-    bar.style.opacity = "0";
-    return;
-  }
-
-  if (window.scrollY > 30) {
-    bar.style.opacity = "0";
-  } else {
-    bar.style.opacity = "1";
-  }
-});
-
-
-
-/* ------------------------------------------------------------
-   DEV MISSION RESET
+   DEV RESET MISSIONS
 ------------------------------------------------------------ */
 function devResetMissions() {
   localStorage.removeItem("missionLocal");
   popup("Missions reset locally");
-  if (typeof updateMissionProgress === "function") {
-    updateMissionProgress();
-  }
 }
