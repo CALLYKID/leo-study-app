@@ -543,3 +543,11 @@ window.addEventListener("scroll", () => {
     bar.style.opacity = "1";
   }
 });
+
+function devResetMissions() {
+  localStorage.removeItem("missionLocal");
+  popup("Missions reset locally");
+  if (typeof updateMissionProgress === "function") {
+    updateMissionProgress();
+  }
+}
