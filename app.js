@@ -533,7 +533,6 @@ function loadUserData() {
       prestige = data.prestige || 0;
 
     } else {
-      // first time user → create profile
       db.collection("users").doc(currentUser.uid).set({
         xp: 0,
         totalXP: 0,
@@ -543,7 +542,7 @@ function loadUserData() {
       });
     }
 
-    updateXPUI();
+    updateAllUI();   // <--- FIXED
   });
 }
 function updateAllUI(){
