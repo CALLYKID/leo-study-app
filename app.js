@@ -482,22 +482,70 @@ function loginUser(){
   }).catch(e=>alert(e.message));
 }
 
-function logout(){
-  document.getElementById("bgAmbience").pause();
+function logout() {
+  auth.signOut().then(() => {
+    
+    // DELETE ALL LOCAL DATA
+    localStorage.clear();
 
-  auth.signOut().then(()=>{
-    currentUser=null;
+    // RESET MEMORY VARIABLES
+    xp = 0;
+    totalXP = 0;
+    level = 1;
+    streak = 0;
+    prestige = 0;
+
+    // OPTIONAL: stop ambience safely
+    try {
+      document.getElementById("bgAmbience").pause();
+    } catch(e){}
+
+    currentUser = null;
+
     showToast("User logged out");
-    refreshMenu();
-    updateLoggedUserBar(null);
+
+    // reload app clean
+    location.reload();
+
+  }).catch(err => {
+    console.error(err);
+    showToast("Logout error");
   });
 }
-
 
 
 /* ------------------------------------------------------------
    GLOBAL UI UPDATE
 ------------------------------------------------------------ */
+// -------------------------------------
+// LOAD USER DATA FROM FIREBASE
+// -------------------------------------
+function loadUserData() {
+  db.collection("users").doc(currentUser.uid).get().then(doc => {
+
+    if (doc.exists) {
+      const data = doc.data();
+
+      xp = data.xp || 0;
+      totalXP = data.totalXP || 0;
+      level = data.level || 1;
+      streak = data.streak || 0;
+      prestige = data.prestige || 0;
+
+    } else {
+      // first time user → create profile
+      db.collection("users").doc(currentUser.uid).set({
+        xp: 0,
+        totalXP: 0,
+        level: 1,
+        streak: 0,
+        prestige: 0,
+      });
+    }
+
+    updateXPUI();
+  });
+}
 function updateAllUI(){
   updateXPBar();
   updateRewardsDisplay();
