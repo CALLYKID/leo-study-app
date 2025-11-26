@@ -482,13 +482,24 @@ function updateLoggedUserBar(user){
   const bar = document.getElementById("loggedUserBar");
   if(!bar) return;
 
+  // If user is not logged in
   if(!user){
     bar.style.opacity = "0";
     return;
   }
 
-  bar.innerText = `Logged in as: ${user.email}`;
-  bar.style.opacity = "1";
+  // Only show bar when menu is visible
+  const menu = document.getElementById("menu");
+  const onMenu = window.getComputedStyle(menu).display !== "none";
+
+  if(onMenu){
+    bar.innerText = `Logged in as: ${user.email}`;
+    bar.style.opacity = "1";
+    bar.style.pointerEvents = "auto";
+  } else {
+    bar.style.opacity = "0";
+    bar.style.pointerEvents = "none";
+  }
 }
 
 
