@@ -29,8 +29,10 @@ function playSFX(id){
   audio.play().catch(()=>{});
 }
 
+
+
 /* ------------------------------------------------------------
-   AMBIENCE (MOBILE-SAFE)
+   AMBIENCE (MOBILE SAFE)
 ------------------------------------------------------------ */
 let ambienceStarted = false;
 
@@ -46,23 +48,19 @@ function unlockAmbience() {
   amb.play()
     .then(() => console.log("AMBIENCE PLAYING"))
     .catch(err => console.log("AMBIENCE ERROR:", err));
-
-  // remove listeners so it doesn't repeat
-  document.removeEventListener("click", unlockAmbience);
-  document.removeEventListener("touchstart", unlockAmbience);
 }
 
-// ONLY start ambience after first real tap
 document.addEventListener("click", unlockAmbience, { once: true });
 document.addEventListener("touchstart", unlockAmbience, { once: true });
 
 
 
 /* ------------------------------------------------------------
-   POPUPS
+   POPUPS & TOASTS
 ------------------------------------------------------------ */
 function popup(msg){
   const p = document.getElementById("popup");
+  if(!p) return;
   p.innerText = msg;
   p.style.display = "block";
   setTimeout(()=>p.style.display="none",2000);
@@ -70,6 +68,7 @@ function popup(msg){
 
 function showToast(msg){
   const t = document.getElementById("toast");
+  if(!t) return;
   t.innerText = msg;
   t.style.display = "block";
   setTimeout(()=>t.style.display="none",2000);
@@ -78,19 +77,24 @@ function showToast(msg){
 function showAchievementPopup(name){
   playSFX("sfxAchievement");
   const p = document.getElementById("achievementPopup");
+  if(!p) return;
   p.innerText = "🏆 " + name;
   p.classList.add("show");
   setTimeout(()=>p.classList.remove("show"),2500);
 }
 
+
+
 /* ------------------------------------------------------------
-   SYNC STATUS (MISSING FIX)
+   SYNC STATUS
 ------------------------------------------------------------ */
 function updateSyncStatus(msg){
   const el = document.getElementById("syncStatus");
   if(!el) return;
   el.innerText = `SYNC: ${msg}`;
 }
+
+
 
 /* ------------------------------------------------------------
    GAME VARIABLES
@@ -108,6 +112,7 @@ let lastStudyDay = null;
 
 let prestige = 0;
 let xpMultiplier = 1;
+
 const PRESTIGE_UNLOCK = 20;
 
 let badgesUnlocked = {};
@@ -141,6 +146,11 @@ let badges = [
     check:()=>badges.filter(b=>b.id!=="GOD").every(b=>badgesUnlocked[b.id]) }
 ];
 
+
+
+/* ------------------------------------------------------------
+   HARD RESET
+------------------------------------------------------------ */
 function confirmHardReset() {
   playSFX("sfxClick");
 
@@ -153,13 +163,14 @@ function confirmHardReset() {
   level = 1;
   xpNeeded = 500;
 
-  prestige = prestige; // keep prestige
   xpMultiplier = 1 + prestige * 0.25;
 
   saveCloud();
   updateAllUI();
   popup("ALL XP RESET");
 }
+
+
 
 /* ------------------------------------------------------------
    CLOUD SAVE
@@ -171,7 +182,8 @@ async function saveCloud(){
     xp,totalXP,xpBase,levelXP,level,xpNeeded,
     minutes,streak,lastStudyDay,
     prestige,xpMultiplier,
-    badgesUnlocked,rewards,
+    badgesUnlocked,
+    rewards,
     updatedAt:new Date().toISOString()
   });
 
@@ -180,6 +192,7 @@ async function saveCloud(){
 
 async function loadCloud(){
   if(!currentUser) return;
+
   const doc = await db.collection("users").doc(currentUser.uid).get();
   if(!doc.exists) return saveCloud();
 
@@ -190,7 +203,8 @@ async function loadCloud(){
   minutes=d.minutes; streak=d.streak; lastStudyDay=d.lastStudyDay;
   prestige=d.prestige; xpMultiplier=d.xpMultiplier;
   badgesUnlocked=d.badgesUnlocked || {};
-  rewards=d.rewards || rewards;
+
+  rewards = Array.isArray(d.rewards) ? d.rewards : rewards;
 
   updateAllUI();
 }
@@ -209,10 +223,14 @@ function calcXP(min){
 
 function addMinutes(m){
   minutes += m;
-  missionTrackMinutes(m);   // << REQUIRED
+
+  if(typeof missionTrackMinutes==="function") missionTrackMinutes(m);
+
   addXP(calcXP(m));
   updateStreak();
-  updateMissionProgress();
+
+  if(typeof updateMissionProgress==="function") updateMissionProgress();
+
   checkBadges();
 }
 
@@ -220,7 +238,8 @@ function addXP(amount){
   playSFX("sfxXP");
 
   const gain = Math.floor(amount * xpMultiplier);
-  missionTrackXP(gain);   // << REQUIRED
+
+  if(typeof missionTrackXP==="function") missionTrackXP(gain);
 
   xp += gain;
   totalXP += gain;
@@ -276,13 +295,16 @@ function doPrestige(){
 ------------------------------------------------------------ */
 function updateStreak(){
   const today = new Date().toDateString();
+
   if(lastStudyDay !== today){
     streak++;
     lastStudyDay = today;
     popup(`🔥 Streak: ${streak} days`);
   }
 
-  document.getElementById("streakCount").innerText = `${streak} days`;
+  const s = document.getElementById("streakCount");
+  if(s) s.innerText = `${streak} days`;
+
   saveCloud();
 }
 
@@ -305,6 +327,8 @@ function checkBadges(){
 
 function renderBadges(){
   const grid = document.getElementById("badgeGrid");
+  if(!grid) return;
+
   grid.innerHTML = "";
 
   badges.forEach(b=>{
@@ -330,7 +354,9 @@ function renderBadges(){
 function updateRewardsDisplay(){
   const shop = document.getElementById("shop");
   const xpDisplay = document.getElementById("xpDisplay");
-  xpDisplay.innerText = xp;
+
+  if(xpDisplay) xpDisplay.innerText = xp;
+  if(!shop) return;
 
   shop.innerHTML = "";
 
@@ -360,7 +386,8 @@ function buyReward(id){
 
   xp -= r.cost;
   r.unlocked = true;
-  if(r.type==="consumable") r.uses++;
+
+  if(r.type==="consumable") r.uses = (r.uses||0) + 1;
 
   saveCloud();
   updateAllUI();
@@ -370,29 +397,36 @@ function buyReward(id){
 
 
 /* ------------------------------------------------------------
-   UI (XP BAR)
+   UI UPDATE (XP BAR)
 ------------------------------------------------------------ */
 function updateXPBar(){
-  document.getElementById("levelNum").innerText = level;
-  document.getElementById("xpText").innerText = `${xp} XP`;
+  const lvl = document.getElementById("levelNum");
+  if(lvl) lvl.innerText = level;
+
+  const xpt = document.getElementById("xpText");
+  if(xpt) xpt.innerText = `${xp} XP`;
 
   const pct = ((xp - xpBase) / xpNeeded) * 100;
-  document.getElementById("xpFill").style.width =
-    Math.min(100,Math.max(0,pct)) + "%";
+  const fill = document.getElementById("xpFill");
+  if(fill) fill.style.width = Math.min(100,Math.max(0,pct)) + "%";
 
-  document.getElementById("prestigeInfo").innerText =
-    `Prestige ${prestige} • x${xpMultiplier.toFixed(2)} XP`;
+  const pre = document.getElementById("prestigeInfo");
+  if(pre) pre.innerText = `Prestige ${prestige} • x${xpMultiplier.toFixed(2)} XP`;
 
-  document.getElementById("totalXPText").innerText =
-    `Total XP: ${totalXP}`;
+  const tot = document.getElementById("totalXPText");
+  if(tot) tot.innerText = `Total XP: ${totalXP}`;
 }
 
+
+
 /* ------------------------------------------------------------
-   MENU SYSTEM — FINAL FIX
+   MENU / SCREEN SYSTEM
 ------------------------------------------------------------ */
 function refreshMenu(){
   const out = document.getElementById("menuLoggedOut");
   const In = document.getElementById("menuLoggedIn");
+
+  if(!out || !In) return;
 
   if(!currentUser){
     out.style.display = "flex";
@@ -406,26 +440,36 @@ function refreshMenu(){
 function openScreen(id){
   playSFX("sfxClick");
 
-  document.getElementById("menu").style.display="none";
+  const menu = document.getElementById("menu");
+  if(menu) menu.style.display="none";
+
   document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
 
   const bar = document.getElementById("loggedUserBar");
-  bar.style.opacity = "0";
-  bar.style.pointerEvents = "none";
+  if(bar){
+    bar.style.opacity = "0";
+    bar.style.pointerEvents = "none";
+  }
 
-  document.getElementById(id).style.display = "block";
+  const scr = document.getElementById(id);
+  if(scr) scr.style.display = "block";
 }
 
 function closeScreen(id){
   playSFX("sfxClick");
 
-  document.getElementById(id).style.display = "none";
-  document.getElementById("menu").style.display = "flex";
+  const scr = document.getElementById(id);
+  if(scr) scr.style.display = "none";
+
+  const menu = document.getElementById("menu");
+  if(menu) menu.style.display = "flex";
 
   if(currentUser){
     const bar = document.getElementById("loggedUserBar");
-    bar.style.opacity = "1";
-    bar.style.pointerEvents = "none";
+    if(bar){
+      bar.style.opacity = "1";
+      bar.style.pointerEvents = "auto";
+    }
   }
 }
 
@@ -436,6 +480,7 @@ function closeScreen(id){
 ------------------------------------------------------------ */
 function updateLoggedUserBar(user){
   const bar = document.getElementById("loggedUserBar");
+  if(!bar) return;
 
   if(!user){
     bar.style.opacity = "0";
@@ -484,18 +529,15 @@ function loginUser(){
 
 function logout() {
   auth.signOut().then(() => {
-    
-    // DELETE ALL LOCAL DATA
+
     localStorage.clear();
 
-    // RESET MEMORY VARIABLES
     xp = 0;
     totalXP = 0;
     level = 1;
     streak = 0;
     prestige = 0;
 
-    // OPTIONAL: stop ambience safely
     try {
       document.getElementById("bgAmbience").pause();
     } catch(e){}
@@ -504,7 +546,6 @@ function logout() {
 
     showToast("User logged out");
 
-    // reload app clean
     location.reload();
 
   }).catch(err => {
@@ -514,37 +555,10 @@ function logout() {
 }
 
 
+
 /* ------------------------------------------------------------
    GLOBAL UI UPDATE
 ------------------------------------------------------------ */
-// -------------------------------------
-// LOAD USER DATA FROM FIREBASE
-// -------------------------------------
-function loadUserData() {
-  db.collection("users").doc(currentUser.uid).get().then(doc => {
-
-    if (doc.exists) {
-      const data = doc.data();
-
-      xp = data.xp || 0;
-      totalXP = data.totalXP || 0;
-      level = data.level || 1;
-      streak = data.streak || 0;
-      prestige = data.prestige || 0;
-
-    } else {
-      db.collection("users").doc(currentUser.uid).set({
-        xp: 0,
-        totalXP: 0,
-        level: 1,
-        streak: 0,
-        prestige: 0,
-      });
-    }
-
-    updateAllUI();   // <--- FIXED
-  });
-}
 function updateAllUI(){
   updateXPBar();
   updateRewardsDisplay();
@@ -561,22 +575,25 @@ auth.onAuthStateChanged(async user=>{
   currentUser = user || null;
 
   if(user){
-  await loadCloud();
-  loadUserData();   // <-- ADD THIS
-}
+    await loadCloud();
+  }
 
   updateAllUI();
   refreshMenu();
 });
 
+
+
 /* ------------------------------------------------------------
-   HIDE LOGGED USER BAR WHEN SCROLLING
+   HIDE USER BAR ON SCROLL
 ------------------------------------------------------------ */
 let lastScroll = 0;
 
 window.addEventListener("scroll", () => {
   const bar = document.getElementById("loggedUserBar");
   const menu = document.getElementById("menu");
+
+  if(!bar || !menu) return;
 
   const onMenu = window.getComputedStyle(menu).display !== "none";
 
@@ -592,6 +609,11 @@ window.addEventListener("scroll", () => {
   }
 });
 
+
+
+/* ------------------------------------------------------------
+   DEV MISSION RESET
+------------------------------------------------------------ */
 function devResetMissions() {
   localStorage.removeItem("missionLocal");
   popup("Missions reset locally");
