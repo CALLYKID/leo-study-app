@@ -95,19 +95,7 @@ const weeklyMissions = [
 /* ------------------------------------------------------------
    PROGRESS CALCULATOR
 ------------------------------------------------------------ */
-function getMissionProgress(m) {
-  let current = 0;
 
-  if (m.type === "dailyMin") current = missionLocal.dailyMin;
-  if (m.type === "weeklyMin") current = missionLocal.weeklyMin;
-  if (m.type === "dailyXP") current = missionLocal.dailyXP;
-  if (m.type === "weeklyXP") current = missionLocal.weeklyXP;
-  if (m.type === "streak") current = streak;
-
-  const percent = Math.min(100, Math.floor((current / m.need) * 100));
-
-  return { value: current, percent };
-}
 function getMissionProgress(m) {
   let current = 0;
 
