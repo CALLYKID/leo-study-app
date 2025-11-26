@@ -105,7 +105,11 @@ function getMissionProgress(m) {
   if (m.type === "weeklyXP") current = missionLocal.weeklyXP;
   if (m.type === "streak") current = streak;
 
+  // Fix NaN
+  current = Number(current) || 0;
+
   const percent = Math.min(100, Math.floor((current / m.need) * 100));
+
   return { value: current, percent };
 }
 /* ------------------------------------------------------------
