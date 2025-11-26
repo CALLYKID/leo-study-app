@@ -150,6 +150,8 @@ body::-webkit-scrollbar-thumb {
   padding: 100px 20px 30px;
   overflow-y: auto;
   animation: fadeIn 0.35s ease;
+
+  z-index: 50000; /* <-- ADD THIS */
 }
 
 @keyframes fadeIn {
