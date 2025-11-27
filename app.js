@@ -554,3 +554,5 @@ function devResetMissions() {
   localStorage.removeItem("missionLocal");
   popup("Missions reset locally");
 }
+
+// wake github pages
